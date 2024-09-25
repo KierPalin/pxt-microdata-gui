@@ -32,6 +32,7 @@
         "options.ts",
         "picker.ts",
         "tooltips.ts",
+        "assets.ts",
         "README.md"
     ],
     "testFiles": [
