@@ -28,6 +28,10 @@
         "cursorscene.ts",
         "utils.ts",
         "tabularDataViewer.ts",
+        "navigator.ts",
+        "options.ts",
+        "picker.ts",
+        "tooltips.ts",
         "README.md"
     ],
     "testFiles": [
