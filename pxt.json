@@ -6,11 +6,12 @@
         "radio": "*",
         "microphone": "*",
         "datalogger": "*",
-        "pxt-arcadeshield": "github:microsoft/pxt-arcadeshield#v0.1.2",
+        "pxt-arcadeshield": "github:microsoft/pxt-arcadeshield#v0.1.2"
     },
     "files": [
         "main.blocks",
         "main.ts",
+        "app.ts",
         "keymap.ts",
         "analytics.ts",
         "config.ts",
