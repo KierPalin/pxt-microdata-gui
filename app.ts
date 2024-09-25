@@ -10,15 +10,13 @@ namespace microcode {
     export class App {
         private sceneManager: SceneManager 
 
-        constructor(firstScene: Scene) {
+        constructor() {
             // One interval delay to ensure all static constructors have executed.
             basic.pause(10)
             reportEvent("app.start")
 
             this.sceneManager = new SceneManager()
             datalogger.includeTimestamp(FlashLogTimeStampFormat.None)
-
-            this.pushScene(firstScene)
         }
 
         public pushScene(scene: Scene) {
