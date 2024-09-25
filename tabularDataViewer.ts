@@ -337,43 +337,43 @@ namespace microcode {
 
             // Skip the first column: Time (Seconds):
             for (let col = 0; col < colBufferSizes.length; col++) {
-                if (cumulativeColOffset + colBufferSizes[col] > Screen.WIDTH) {
+                if (cumulativeColOffset + colBufferSizes[col] > screen().width) {
                     break
                 }
 
                 // The last column should use all remaining space, if it is lesser than that remaining space:
-                if (col == colBufferSizes.length - 1 || cumulativeColOffset + colBufferSizes[col] + colBufferSizes[col + 1] > Screen.WIDTH) {
-                    cumulativeColOffset += Screen.WIDTH - cumulativeColOffset
+                if (col == colBufferSizes.length - 1 || cumulativeColOffset + colBufferSizes[col] + colBufferSizes[col + 1] > screen().width) {
+                    cumulativeColOffset += screen().width - cumulativeColOffset
                 }
                 else {
                     cumulativeColOffset += colBufferSizes[col]
                 }
 
-                if (cumulativeColOffset <= Screen.WIDTH) {
-                    Screen.drawLine(
-                        Screen.LEFT_EDGE + cumulativeColOffset,
-                        Screen.TOP_EDGE,
-                        Screen.LEFT_EDGE + cumulativeColOffset,
-                        Screen.HEIGHT,
+                if (cumulativeColOffset <= screen().width) {
+                    screen().drawLine(
+                        cumulativeColOffset,
+                        0,
+                        cumulativeColOffset,
+                        screen().height,
                         0x0
                     )
                 }
             }
             
-            for (let rowOffset = 0; rowOffset <= Screen.HEIGHT; rowOffset+=rowBufferSize) {
-                Screen.drawLine(
-                    Screen.LEFT_EDGE,
-                    Screen.TOP_EDGE + rowOffset,
-                    Screen.WIDTH,
-                    Screen.TOP_EDGE + rowOffset,
+            for (let rowOffset = 0; rowOffset <= screen().height; rowOffset+=rowBufferSize) {
+                screen().drawLine(
+                    0,
+                    0 + rowOffset,
+                    screen().width,
+                    0 + rowOffset,
                     0x0
                 )
             }
 
             // Draw selected box:
-            Screen.drawRect(
-                Screen.LEFT_EDGE,
-                Screen.TOP_EDGE + (this.currentRow * rowBufferSize),
+            screen().drawRect(
+                0,
+                0 + (this.currentRow * rowBufferSize),
                 colBufferSizes[0],
                 rowBufferSize,
                 6
@@ -381,20 +381,18 @@ namespace microcode {
         }
 
         draw() {
-            Screen.fillRect(
-                Screen.LEFT_EDGE,
-                Screen.TOP_EDGE,
-                Screen.WIDTH,
-                Screen.HEIGHT,
+            screen().fillRect(
+                0,
+                0,
+                screen().width,
+                screen().height,
                 0xC
             )
-
-            Screen.print(datalogger.getNumberOfRows(), Screen.HALF_WIDTH, Screen.HALF_HEIGHT)
 
             if (TabularDataViewer.updateDataRowsOnNextFrame)
                 TabularDataViewer.nextDataChunk()
 
-            const tabularRowBufferSize = Screen.HEIGHT / Math.min(TabularDataViewer.dataRows.length, TABULAR_MAX_ROWS);
+            const tabularRowBufferSize = screen().height / Math.min(TabularDataViewer.dataRows.length, TABULAR_MAX_ROWS);
             this.drawGridOfVariableColSize(this.headerStringLengths.slice(this.currentCol), tabularRowBufferSize)
 
             
@@ -412,19 +410,19 @@ namespace microcode {
                     if (col == 0 && this.currentCol == 2)
                         value = value.slice(0, 5);
 
-                    if (cumulativeColOffset + this.headerStringLengths[colID] > Screen.WIDTH)
+                    if (cumulativeColOffset + this.headerStringLengths[colID] > screen().width)
                         break;
 
                     // In this.drawGridOfVariableSize: If the column after this one would not fit grant this one the remanining space
                     // This will align the text to the center of this column space
-                    if (colID == TabularDataViewer.dataRows[0].length - 1 || cumulativeColOffset + this.headerStringLengths[colID] + this.headerStringLengths[colID + 1] > Screen.WIDTH) {
-                        cumulativeColOffset += ((Screen.WIDTH - cumulativeColOffset) / 2) - (this.headerStringLengths[colID] / 2);
+                    if (colID == TabularDataViewer.dataRows[0].length - 1 || cumulativeColOffset + this.headerStringLengths[colID] + this.headerStringLengths[colID + 1] > screen().width) {
+                        cumulativeColOffset += ((screen().width - cumulativeColOffset) / 2) - (this.headerStringLengths[colID] / 2);
                     }
 
-                    Screen.print(
+                    screen().print(
                         value,
-                        Screen.LEFT_EDGE + cumulativeColOffset + (this.headerStringLengths[colID] / 2) - ((font.charWidth * value.length) / 2),
-                        Screen.TOP_EDGE + (row * tabularRowBufferSize) + (tabularRowBufferSize / 2) - 4,
+                        0 + cumulativeColOffset + (this.headerStringLengths[colID] / 2) - ((font.charWidth * value.length) / 2),
+                        0 + (row * tabularRowBufferSize) + (tabularRowBufferSize / 2) - 4,
                         0xb,
                         bitmap.font8
                     )
