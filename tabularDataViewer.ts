@@ -389,6 +389,8 @@ namespace microcode {
                 0xC
             )
 
+            Screen.print(datalogger.getNumberOfRows(), Screen.HALF_WIDTH, Screen.HALF_HEIGHT)
+
             if (TabularDataViewer.updateDataRowsOnNextFrame)
                 TabularDataViewer.nextDataChunk()
 
