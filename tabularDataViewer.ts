@@ -424,7 +424,7 @@ namespace microcode {
                         0 + cumulativeColOffset + (this.headerStringLengths[colID] / 2) - ((font.charWidth * value.length) / 2),
                         0 + (row * tabularRowBufferSize) + (tabularRowBufferSize / 2) - 4,
                         0xb,
-                        bitmap.font8
+                        bitmaps.font8
                     )
 
                     cumulativeColOffset += this.headerStringLengths[colID]
