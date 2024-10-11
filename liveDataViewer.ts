@@ -550,42 +550,42 @@ namespace microcode {
             }
         }
     }
-}
 
-export class FunctionToGraph {
-    private maxBufferSize: number
-    private totalMeasurements: number
-    private numberOfReadings: number
-    private isInEventMode: boolean
-    private lastLoggedEventDescription: string
-    private dataBuffer: number[]
-    private lastLoggedReading: number
-    private heightNormalisedDataBuffer: number[]
+    export class FunctionToGraph {
+        private maxBufferSize: number
+        private totalMeasurements: number
+        private numberOfReadings: number
+        private isInEventMode: boolean
+        private lastLoggedEventDescription: string
+        private dataBuffer: number[]
+        private lastLoggedReading: number
+        private heightNormalisedDataBuffer: number[]
 
-    constructor() {
-        this.maxBufferSize = 80
-        this.totalMeasurements = 0
-        this.numberOfReadings = 0
-        this.isInEventMode = false
+        constructor() {
+            this.maxBufferSize = 80
+            this.totalMeasurements = 0
+            this.numberOfReadings = 0
+            this.isInEventMode = false
 
-        this.lastLoggedEventDescription = ""
-        this.dataBuffer = []
-        this.lastLoggedReading = 0
-        this.heightNormalisedDataBuffer = []
+            this.lastLoggedEventDescription = ""
+            this.dataBuffer = []
+            this.lastLoggedReading = 0
+            this.heightNormalisedDataBuffer = []
+        }
+
+        getReading(): number {return 0}
+        getNormalisedReading(): number {return Math.abs(this.getReading()) / (Math.abs(this.getMinimum()) + this.getMaximum())}
+        getMinimum(): number {return 0;}
+        getMaximum(): number {return 100;}
+        isJacdac(): boolean {return false;}
+
+        getMaxBufferSize(): number {return this.maxBufferSize}
+        getNthReading(n: number): number {return this.dataBuffer[n]}
+        getNthHeightNormalisedReading(n: number): number {return this.heightNormalisedDataBuffer[n]}
+        getBufferLength(): number {return this.dataBuffer.length}
+        getHeightNormalisedBufferLength(): number {return this.heightNormalisedDataBuffer.length}
+        // getPeriod(): number {return this.config.period;}
+        // getMeasurements(): number {return this.config.measurements}
+        // hasMeasurements(): boolean {return this.config.measurements > 0;}
     }
-
-    getReading(): number {return 0}
-    getNormalisedReading(): number {return Math.abs(this.getReading()) / (Math.abs(this.getMinimum()) + this.getMaximum())}
-    getMinimum(): number {return 0;}
-    getMaximum(): number {return 100;}
-    isJacdac(): boolean {return false;}
-
-    getMaxBufferSize(): number {return this.maxBufferSize}
-    getNthReading(n: number): number {return this.dataBuffer[n]}
-    getNthHeightNormalisedReading(n: number): number {return this.heightNormalisedDataBuffer[n]}
-    getBufferLength(): number {return this.dataBuffer.length}
-    getHeightNormalisedBufferLength(): number {return this.heightNormalisedDataBuffer.length}
-    // getPeriod(): number {return this.config.period;}
-    // getMeasurements(): number {return this.config.measurements}
-    // hasMeasurements(): boolean {return this.config.measurements > 0;}
 }
