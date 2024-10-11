@@ -581,7 +581,6 @@ namespace microcode {
         getNormalisedReading(): number {return Math.abs(this.getReading()) / (Math.abs(this.getMinimum()) + this.getMaximum())}
         getMinimum(): number {return 0;}
         getMaximum(): number {return 100;}
-        isJacdac(): boolean {return false;}
 
         getMaxBufferSize(): number {return this.maxBufferSize}
         getNthReading(n: number): number {return this.dataBuffer[n]}

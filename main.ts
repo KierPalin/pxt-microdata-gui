@@ -17,3 +17,9 @@
 //     screen().printCenter("" + datalogger.getNumberOfRows(), 10)
 //     basic.pause(1000)
 // })
+
+
+const app = new microcode.App();
+const ftg = new microcode.FunctionToGraph()
+
+app.pushScene(new microcode.LiveDataViewer(app, [ftg]))
