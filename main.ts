@@ -20,6 +20,6 @@
 
 
 const app = new microcode.App();
-const ftg = new microcode.FunctionToGraph()
+const ftg = new microcode.GraphableFunction()
 
 app.pushScene(new microcode.LiveDataViewer(app, [ftg]))

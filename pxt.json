@@ -33,7 +33,8 @@
         "tooltips.ts",
         "assets.ts",
         "tabularDataViewer.ts",
-        "liveDataViewer.ts"
+        "liveDataViewer.ts",
+        "graphableFunction.ts"
     ],
     "testFiles": [
         "test.ts"
