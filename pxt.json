@@ -34,7 +34,9 @@
         "assets.ts",
         "tabularDataViewer.ts",
         "liveDataViewer.ts",
-        "graphableFunction.ts"
+        "graphableFunction.ts",
+        "sensors.ts",
+        "loggingConfig.ts"
     ],
     "testFiles": [
         "test.ts"

@@ -1,5 +1,9 @@
 namespace microcode {
 
+    export interface IGraphableFunction {
+        draw(): void;
+    }
+
     /** How many times should a line be duplicated when drawn? */
     const PLOT_SMOOTHING_CONSTANT: number = 4
 
