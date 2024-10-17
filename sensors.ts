@@ -247,9 +247,7 @@ namespace microcode {
          * 
          * @param callbackObj is used by the DistributedLoggingProtocol; after each log & after the algorithm finishes a callback will be made
         */
-        start(callbackObj?: ITargetDataLoggedCallback) {
-            const callbackAfterLog: boolean = (callbackObj == null) ? false : true
-            
+        start() {
             control.inBackground(() => {
                 let currentTime = 0;
 
@@ -260,10 +258,6 @@ namespace microcode {
 
                     // Make the datalogger log the data:
                     const logAsCSV = this.schedule[i].sensor.log(0)
-
-                    // Optionally inform the caller of the log (In the case of the DistributedLoggingProtocol this information can be forwarded to the Commander over radio)
-                    if (callbackAfterLog)
-                        callbackObj.callback(logAsCSV)
 
                     // Clear from schedule (A sensor may only have 1 reading):
                     if (!this.schedule[i].sensor.hasMeasurements())
@@ -295,10 +289,6 @@ namespace microcode {
                             // Make the datalogger log the data:
                             const logAsCSV = this.schedule[i].sensor.log(currentTime)
 
-                            // Optionally inform the caller of the log (In the case of the DistributedLoggingProtocol this information can be forwarded to the Commander over radio)
-                            if (callbackAfterLog)
-                                callbackObj.callback(logAsCSV)
-
                             // Update schedule with when they should next be logged:
                             if (this.schedule[i].sensor.hasMeasurements()) {
                                 this.schedule[i].waitTime = nextLogTime + this.schedule[i].sensor.getPeriod()
@@ -323,10 +313,6 @@ namespace microcode {
                         # . . . #
                         . # # # .
                     `)
-                }
-                if (callbackAfterLog) {
-                    DistributedLoggingProtocol.finishedLogging = true
-                    callbackObj.callback("")
                 }
             })
         }
@@ -421,11 +407,11 @@ namespace microcode {
             else if (name == "Logo Pressed" || name == "Logo Press" || name == "LP")   return new LogoPressSensor();
             else if (name == "Volume" || name == "Microphone" || name == "V")          return new VolumeSensor();
             else if (name == "Compass" || name == "C")                                 return new CompassHeadingSensor();
-            else if (name == "Jac Light" || name == "Jacdac Light" || name == "JL")    return new JacdacLightSensor();
-            else if (name == "Jac Moist" || name == "Jacdac Moisture" || name == "JM") return new JacdacSoilMoistureSensor();
-            else if (name == "Jac Dist" || name == "Jacdac Distance" || name == "JD")  return new JacdacDistanceSensor();
+            // else if (name == "Jac Light" || name == "Jacdac Light" || name == "JL")    return new JacdacLightSensor();
+            // else if (name == "Jac Moist" || name == "Jacdac Moisture" || name == "JM") return new JacdacSoilMoistureSensor();
+            // else if (name == "Jac Dist" || name == "Jacdac Distance" || name == "JD")  return new JacdacDistanceSensor();
             // else if (name == "Jac Flex" || name == "Jacdac Flex" || name == "JF")      return new JacdacFlexSensor();
-            else                                                                       return new JacdacTemperatureSensor()
+            else                                                                       return new AccelerometerXSensor()
         }
 
         //---------------------

@@ -142,7 +142,7 @@ namespace microcode {
                                 this.app.popScene()
 
                                 if (this.nextSceneEnum == CursorSceneEnum.DistributedLogging) {
-                                    this.app.pushScene(new DistributedLoggingScreen(this.app, this.sensors, this.sensorConfigs));
+                                    // this.app.pushScene(new DistributedLoggingScreen(this.app, this.sensors, this.sensorConfigs));
                                 }
                                 else {
                                     // All sensors are configured, pass them their config and move to the DataRecording screen:
@@ -150,7 +150,7 @@ namespace microcode {
                                         sensor.setConfig(this.sensorConfigs[index])
                                     });
 
-                                    this.app.pushScene(new DataRecorder(this.app, this.sensors));
+                                    // this.app.pushScene(new DataRecorder(this.app, this.sensors));
                                 }
                             }
 
@@ -210,7 +210,7 @@ namespace microcode {
                     switch (this.guiState) {
                         case GUI_STATE.SENSOR_SELECT: {
                             this.app.popScene()
-                            this.app.pushScene(new Home(this.app))
+                            // this.app.pushScene(new Home(this.app))
                         }
 
                         case GUI_STATE.SENSOR_SELECT_CONFIG_ROW: {

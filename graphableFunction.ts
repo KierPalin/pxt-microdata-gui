@@ -1,7 +1,7 @@
 namespace microcode {
 
     export interface IGraphableFunction {
-        draw(): void;
+        draw(fromX: number, color: number): void;
     }
 
     /** How many times should a line be duplicated when drawn? */
