@@ -1,4 +1,3 @@
-
 > Open this page at [https://kierpalin.github.io/pxt-microdata-gui/](https://kierpalin.github.io/pxt-microdata-gui/)
 
 ## Use as Extension
@@ -23,4 +22,5 @@ To edit this repository in MakeCode.
 * for PXT/microbit
 <script src="https://makecode.com/gh-pages-embed.js"></script><script>makeCodeRender("{{ site.makecode.home_url }}", "{{ site.github.owner_name }}/{{ site.github.repository_name }}");</script>
 
-
+# Project Objective:
+To coalesce aspects of MicroData and MicroCode into a makecode extension that makes the underlying GUI maleable to user-created makecode applications.
