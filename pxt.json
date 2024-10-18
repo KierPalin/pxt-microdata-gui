@@ -36,7 +36,8 @@
         "liveDataViewer.ts",
         "graphableFunction.ts",
         "sensors.ts",
-        "loggingConfig.ts"
+        "loggingConfig.ts",
+        "inputMethods.ts"
     ],
     "testFiles": [
         "test.ts"
