@@ -16,7 +16,6 @@ namespace microcode {
         }
     }
 
-
     export class TickerMenu extends AbstractInputMethod {
         private tickerValues: number[];
         private tickerIncrements: number[];
@@ -69,14 +68,46 @@ namespace microcode {
                 controller.down.id,
                 () => this.downBtnPressed()
             )
+
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.A.id,
+                () => this.aBtnPressed()
+            )
+
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.B.id,
+                () => this.bBtnPressed()
+            )
         }
         
         upBtnPressed() {
-            this.tickerValues[this.currentTickerIndex] += 1;
+            let tick = true;
+            control.onEvent(
+                ControllerButtonEvent.Released,
+                controller.up.id,
+                () => tick = false
+            )
+            while (tick) {
+                this.tickerValues[this.currentTickerIndex] += 1
+                basic.pause(100)
+            }
+            control.onEvent(ControllerButtonEvent.Released, controller.up.id, () => {})
         }
 
         downBtnPressed() {
-            this.tickerValues[this.currentTickerIndex] -= 1;
+            let tick = true;
+            control.onEvent(
+                ControllerButtonEvent.Released,
+                controller.down.id,
+                () => tick = false
+            )
+            while (tick) {
+                this.tickerValues[this.currentTickerIndex] -= 1
+                basic.pause(100)
+            }
+            control.onEvent(ControllerButtonEvent.Released, controller.down.id, () => {})
         }
 
         leftBtnPressed() {
@@ -103,11 +134,32 @@ namespace microcode {
             const xDiff = screen().width / (this.tickerValues.length + 1)
 
             for (let i = 0; i < this.tickerValues.length; i++) {
+                const value: string = "" + this.tickerValues[i];
                 screen().print(
-                    "" + this.tickerValues[i],
+                    value,
                     ((i + 1) * xDiff) - 3,
                     screen().height / 2,
                     0
+                )
+
+                screen().fillTriangle(
+                    ((i + 1) * xDiff) - 4,
+                    (screen().height / 2) - 2,
+                    ((i + 1) * xDiff) - 4 + (font.charWidth * value.length + 1) + 1,
+                    (screen().height / 2) - 2,
+                    ((i + 1) * xDiff) - 4 + ((font.charWidth * value.length + 1) / 2) + 1,
+                    (screen().height / 2) - 7,
+                    5
+                )
+
+                screen().fillTriangle(
+                    ((i + 1) * xDiff) - 4,
+                    (screen().height / 2) + 9,
+                    ((i + 1) * xDiff) - 4 + (font.charWidth * value.length + 1) + 1,
+                    (screen().height / 2) + 9,
+                    ((i + 1) * xDiff) - 4 + ((font.charWidth * value.length + 1) / 2) + 1,
+                    (screen().height / 2) + 14,
+                    5
                 )
             }
         }
