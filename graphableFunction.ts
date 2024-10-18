@@ -17,7 +17,9 @@ namespace microcode {
         lastLoggedReading: number
         heightNormalisedDataBuffer: number[]
 
-        constructor() {
+        fnToSample: (x: number) => number
+
+        constructor(fnToSample: (x: number) => number) {
             this.maxBufferSize = 80
             this.totalMeasurements = 0
             this.numberOfReadings = 0
@@ -27,10 +29,13 @@ namespace microcode {
             this.dataBuffer = []
             this.lastLoggedReading = 0
             this.heightNormalisedDataBuffer = []
+
+            this.fnToSample = fnToSample
         }
 
         getName(): string {return "name"}
         getReading(): number {return 0}
+        getValueAt(x: number): number {return this.fnToSample(x);}
         getNormalisedReading(): number {return Math.abs(this.getReading()) / (Math.abs(this.getMinimum()) + this.getMaximum())}
         getMinimum(): number {return 0;}
         getMaximum(): number {return 100;}
@@ -68,7 +73,7 @@ namespace microcode {
          * @returns 
          */
         readIntoBufferOnce(fromY: number): void {
-            const reading = this.getReading()
+            const reading = this.getValueAt(this.numberOfReadings)
 
             if (this.dataBuffer.length >= this.maxBufferSize || reading === undefined) {
                 this.dataBuffer.shift();

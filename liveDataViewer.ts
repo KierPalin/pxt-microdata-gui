@@ -79,7 +79,7 @@ namespace microcode {
         private oscSensorIndex: number
 
         /** That are being drawn */
-        private sensors: GraphableFunction[]
+        private graphableFns: GraphableFunction[]
         /** Sensors can be turned on & off: only showSensors[n] == true are shown */
         private drawSensorStates: boolean[];
         /** Use the sensor minimum and maximum data to wwrite information about them below the plot */
@@ -114,7 +114,7 @@ namespace microcode {
             this.oscReading = 0
             this.oscSensorIndex = 0
 
-            this.sensors = sensors
+            this.graphableFns = sensors
             this.drawSensorStates = []
             this.sensorMinsAndMaxs = []
 
@@ -144,9 +144,9 @@ namespace microcode {
                     }
                     else {
                         this.guiState = GUI_STATE.ZOOMED_IN;
-                        this.sensors.forEach((sensor) => sensor.setBufferSize(140));
+                        this.graphableFns.forEach((sensor) => sensor.setBufferSize(140));
 
-                        const sensor = this.sensors[this.oscSensorIndex];
+                        const sensor = this.graphableFns[this.oscSensorIndex];
                         this.oscXCoordinate = Math.round(sensor.getHeightNormalisedBufferLength() / 2);
                         this.oscReading = sensor.getNthHeightNormalisedReading(this.oscXCoordinate);
 ;
@@ -172,7 +172,7 @@ namespace microcode {
                     
                     else {
                         this.guiState = GUI_STATE.GRAPH
-                        this.sensors.forEach((sensor) => sensor.setBufferSize(80))
+                        this.graphableFns.forEach((sensor) => sensor.setBufferSize(80))
 
                         this.windowHeight = Screen.HEIGHT
                         this.windowWidth = Screen.WIDTH
@@ -206,10 +206,10 @@ namespace microcode {
 
                     else if (this.guiState == GUI_STATE.ZOOMED_IN) {
                         this.oscSensorIndex = Math.max(0, this.oscSensorIndex - 1)
-                        this.oscReading = this.sensors[this.oscSensorIndex].getNthHeightNormalisedReading(this.oscXCoordinate)
+                        this.oscReading = this.graphableFns[this.oscSensorIndex].getNthHeightNormalisedReading(this.oscXCoordinate)
                     }
 
-                    this.sensors.forEach((sensor) => sensor.normaliseDataBuffer(this.windowBotBuffer - (2 * this.yScrollOffset) + (Screen.HEIGHT * 0.0625))) // 8
+                    this.graphableFns.forEach((sensor) => sensor.normaliseDataBuffer(this.windowBotBuffer - (2 * this.yScrollOffset) + (Screen.HEIGHT * 0.0625))) // 8
                     this.update() // For fast response to the above change
                 }
             )
@@ -230,13 +230,13 @@ namespace microcode {
                             this.yScrollRate = (Screen.HEIGHT * 0.15625) // 20   
                         }
 
-                        this.sensors.forEach((sensor) => sensor.normaliseDataBuffer(this.windowBotBuffer - (2 * this.yScrollOffset) + (Screen.HEIGHT * 0.0625))) // 8
+                        this.graphableFns.forEach((sensor) => sensor.normaliseDataBuffer(this.windowBotBuffer - (2 * this.yScrollOffset) + (Screen.HEIGHT * 0.0625))) // 8
                         this.update() // For fast response to the above change
                     }
 
                     else if (this.guiState == GUI_STATE.ZOOMED_IN) {
-                        this.oscSensorIndex = Math.min(this.oscSensorIndex + 1, this.sensors.length - 1)
-                        this.oscReading = this.sensors[this.oscSensorIndex].getNthHeightNormalisedReading(this.oscXCoordinate)
+                        this.oscSensorIndex = Math.min(this.oscSensorIndex + 1, this.graphableFns.length - 1)
+                        this.oscReading = this.graphableFns[this.oscSensorIndex].getNthHeightNormalisedReading(this.oscXCoordinate)
                     }
                 }
             )
@@ -247,7 +247,7 @@ namespace microcode {
                 () => {
                     if (this.guiState == GUI_STATE.ZOOMED_IN && this.oscXCoordinate > 0) {
                         this.oscXCoordinate -= 1
-                        this.oscReading = this.sensors[this.oscSensorIndex].getNthHeightNormalisedReading(this.oscXCoordinate)
+                        this.oscReading = this.graphableFns[this.oscSensorIndex].getNthHeightNormalisedReading(this.oscXCoordinate)
                         this.update() // For fast response to the above change
                     }
                 }
@@ -257,9 +257,9 @@ namespace microcode {
                 ControllerButtonEvent.Pressed,
                 controller.right.id,
                 () => {
-                    if (this.guiState == GUI_STATE.ZOOMED_IN && this.oscXCoordinate < this.sensors[this.oscSensorIndex].getHeightNormalisedBufferLength() - 1) {
+                    if (this.guiState == GUI_STATE.ZOOMED_IN && this.oscXCoordinate < this.graphableFns[this.oscSensorIndex].getHeightNormalisedBufferLength() - 1) {
                         this.oscXCoordinate += 1
-                        this.oscReading = this.sensors[this.oscSensorIndex].getNthHeightNormalisedReading(this.oscXCoordinate)
+                        this.oscReading = this.graphableFns[this.oscSensorIndex].getNthHeightNormalisedReading(this.oscXCoordinate)
 
                         this.update() // For fast response to the above change
                     }
@@ -278,10 +278,10 @@ namespace microcode {
             this.globalSensorMaximum = null
             
             // Get the minimum and maximum sensor readings:
-            for (let i = 0; i < this.sensors.length; i++) {
+            for (let i = 0; i < this.graphableFns.length; i++) {
                 if (this.drawSensorStates[i]) {
                     // Minimum and Maximum sensor readings for the y-axis markers
-                    const sensor: GraphableFunction = this.sensors[i]
+                    const sensor: GraphableFunction = this.graphableFns[i]
                     if (sensor.getMinimum() < this.globalSensorMinimum || this.globalSensorMinimum == null) {
                         this.globalSensorMinimum = sensor.getMinimum()
                     }
@@ -306,7 +306,7 @@ namespace microcode {
                 this.windowTopBuffer + this.yScrollOffset + this.yScrollOffset, 
                 Screen.WIDTH - this.windowLeftBuffer - this.windowRightBuffer,
                 this.windowHeight - this.windowBotBuffer - ((this.guiState == GUI_STATE.ZOOMED_IN) ? 0 : 4),
-                0
+                15
             );
 
             //-------------------------------
@@ -314,11 +314,11 @@ namespace microcode {
             //-------------------------------
 
             if (this.guiState != GUI_STATE.SENSOR_SELECTION) {
-                for (let i = 0; i < this.sensors.length; i++) {
+                for (let i = 0; i < this.graphableFns.length; i++) {
                     if (this.drawSensorStates[i]) {
-                        const hasSpace = this.sensors[i].getBufferLength() < this.sensors[i].getMaxBufferSize()
+                        const hasSpace = this.graphableFns[i].getBufferLength() < this.graphableFns[i].getMaxBufferSize()
                         if ((this.guiState != GUI_STATE.ZOOMED_IN) || (this.guiState == GUI_STATE.ZOOMED_IN && hasSpace))
-                            this.sensors[i].readIntoBufferOnce(this.windowBotBuffer - (2 * this.yScrollOffset) + (Screen.HEIGHT * 0.0625)) // 8
+                            this.graphableFns[i].readIntoBufferOnce(this.windowBotBuffer - (2 * this.yScrollOffset) + (Screen.HEIGHT * 0.0625)) // 8
                     }
                         
                 }
@@ -328,9 +328,9 @@ namespace microcode {
             // Draw sensor lines & ticker:
             //----------------------------
             if (this.guiState != GUI_STATE.SENSOR_SELECTION) {
-                for (let i = 0; i < this.sensors.length; i++) {
+                for (let i = 0; i < this.graphableFns.length; i++) {
                     if (this.drawSensorStates[i]) {
-                        const sensor = this.sensors[i]
+                        const sensor = this.graphableFns[i]
                         const color: number = SENSOR_COLORS[i % SENSOR_COLORS.length]
 
                         // Draw lines:
@@ -346,6 +346,7 @@ namespace microcode {
                             const reading = sensor.getReading()
                             const range = Math.abs(sensor.getMinimum()) + sensor.getMaximum()
                             const y = Math.round(Screen.HEIGHT - ((((reading - sensor.getMinimum()) / range) * (BUFFERED_SCREEN_HEIGHT - fromY)))) - fromY
+
                             // Make sure the ticker won't be cut-off by other UI elements
                             if (y > sensor.getMinimum() + 5) {
                                 screen().print(
@@ -405,7 +406,7 @@ namespace microcode {
             //--------------------------------
             if (this.yScrollOffset <= (Screen.HEIGHT * 0.3125) && this.guiState != GUI_STATE.ZOOMED_IN) { // 40
                 let y = this.windowHeight - 2 + (2 * this.yScrollOffset)
-                for (let i = 0; i < this.sensors.length; i++) {
+                for (let i = 0; i < this.graphableFns.length; i++) {
                     // Black edges:
                     screen().fillRect(
                         5,
@@ -448,7 +449,7 @@ namespace microcode {
 
                     // Information:
                     screen().print(
-                        this.sensors[i].getName(),
+                        this.graphableFns[i].getName(),
                         12,
                         y + (Screen.HEIGHT * 0.0156),// 2
                         textColor
@@ -533,14 +534,14 @@ namespace microcode {
 
                 // Start
                 screen().print(
-                    this.sensors[0].numberOfReadings.toString(),
+                    this.graphableFns[0].numberOfReadings.toString(),
                     this.windowLeftBuffer - 2,
                     this.windowHeight - this.windowBotBuffer + this.yScrollOffset + this.yScrollOffset + (Screen.HEIGHT * 0.03125), // 4
                     15
                 )
 
                 // End:
-                const end: string = (this.sensors[0].numberOfReadings + this.sensors[0].getHeightNormalisedBufferLength()).toString() 
+                const end: string = (this.graphableFns[0].numberOfReadings + this.graphableFns[0].getHeightNormalisedBufferLength()).toString() 
                 screen().print(
                     end,
                     Screen.WIDTH - this.windowRightBuffer - (end.length * font.charWidth) - 1,
