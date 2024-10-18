@@ -10,7 +10,7 @@ namespace microcode {
         bBtnPressed() { }
         
         draw() {
-            screen().drawRect(0, 0, screen().width, screen().height, this.backgroundColor)
+            screen().fillRect(0, 0, screen().width, screen().height, this.backgroundColor)
 
             screen().printCenter(this.titleText, 4)
         }
@@ -45,6 +45,30 @@ namespace microcode {
 
             this.next = next;
             this.back = back;
+
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.left.id,
+                () => this.leftBtnPressed()
+            )
+
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.right.id,
+                () => this.rightBtnPressed()
+            )
+
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.up.id,
+                () => this.upBtnPressed()
+            )
+
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.down.id,
+                () => this.downBtnPressed()
+            )
         }
         
         upBtnPressed() {
@@ -52,7 +76,7 @@ namespace microcode {
         }
 
         downBtnPressed() {
-            this.tickerValues[this.currentTickerIndex] += 1;
+            this.tickerValues[this.currentTickerIndex] -= 1;
         }
 
         leftBtnPressed() {
@@ -76,13 +100,12 @@ namespace microcode {
         draw() {
             super.draw()
 
-            const xBorder = 10;
-            const xDiff = (screen().width - (2 * xBorder))  / this.tickerValues.length
+            const xDiff = screen().width / (this.tickerValues.length + 1)
 
             for (let i = 0; i < this.tickerValues.length; i++) {
                 screen().print(
                     "" + this.tickerValues[i],
-                    xBorder + (i * xDiff),
+                    ((i + 1) * xDiff) - 3,
                     screen().height / 2,
                     0
                 )
