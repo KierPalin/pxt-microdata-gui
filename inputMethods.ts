@@ -165,7 +165,82 @@ namespace microcode {
         }
     }
 
-    export class KeyboardMenu extends AbstractInputMethod {
+    const enum KEYBOARD_MODE {
+        LOWER_CASE,
+        UPPER_CASE,
+        NUMERICAL
+    }
+
+    export class KeyboardMenu extends CursorScene {
+        private text: string;
+        private btns: Button[]
+        private mode: KEYBOARD_MODE;
+
+        constructor(app: App) {
+            super(app, new GridNavigator(3, 10))
+            this.text = ""
+            this.mode = KEYBOARD_MODE.LOWER_CASE
+
+            
+            const btnsPerRow = 10;
+            const xDiff = screen().width / (btnsPerRow + 1);
+
+            this.btns = []
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 10; j++) {
+                    // this.btns.push(
+                    //     new Button(
+                    //         xDiff * (i + 1),
+                    //         30 + (10 * (j + 1)),
+                            
+                    //     )
+                    // )
+                }
+            }
+            this.setBtnsToNumericalMode()
+        }
+
+        private setBtnsToTextMode() {
+
+        }
+
+        private setBtnsToNumericalMode() {
+
+        }
+
+        private changeCase() {
+            this.mode = (this.mode == KEYBOARD_MODE.LOWER_CASE) ? KEYBOARD_MODE.UPPER_CASE : KEYBOARD_MODE.LOWER_CASE;
+
+            if (this.mode == KEYBOARD_MODE.LOWER_CASE)
+                this.btns.forEach(btn => btn.ariaId = btn.ariaId.toLowerCase())
+
+            else if (this.mode == KEYBOARD_MODE.UPPER_CASE)
+                this.btns.forEach(btn => btn.ariaId = btn.ariaId.toUpperCase())
+        }
+        
+        draw(): void {
+            screen().printCenter(this.text, 3)
+            
+            switch (this.mode) {
+                case KEYBOARD_MODE.LOWER_CASE:
+                    
+                    break;
+                
+                case KEYBOARD_MODE.UPPER_CASE:
+                
+                    break;
+            
+                case KEYBOARD_MODE.NUMERICAL:
+                
+                    break;
+            
+                default:
+                    break;
+            }
+        }
+    }
+
+    export class CalculatorMenu extends AbstractInputMethod {
 
     }
 
