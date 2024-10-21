@@ -201,6 +201,7 @@ namespace microcode {
         public selected: boolean
         private dynamicBoundaryColorsOn: boolean
         private boundaryColor: number
+        public state: number[]
         public pressable: boolean
 
         public get ariaId(): string {
@@ -220,7 +221,7 @@ namespace microcode {
                 value: this.ariaId,
                 force,
             }
-            accessibility.setLiveContent(msg) 
+            accessibility.setLiveContent(msg)
         }
 
         constructor(opts: {
@@ -233,7 +234,8 @@ namespace microcode {
             onClick?: (button: Button) => void,
             dynamicBoundaryColorsOn?: boolean
             boundaryColor?: number,
-            flipIcon?: boolean
+            flipIcon?: boolean,
+            state?: number[],
         }) {
             super(
                 opts.x,
@@ -266,6 +268,8 @@ namespace microcode {
                 this.dynamicBoundaryColorsOn = true
                 this.boundaryColor = opts.boundaryColor
             }
+
+            this.state = opts.state
         }
 
         public getIcon() {
