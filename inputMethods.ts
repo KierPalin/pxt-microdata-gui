@@ -174,7 +174,7 @@ namespace microcode {
         private next: (arg0: string) => void
 
         constructor(app: App, next: (arg0: string) => void) {
-            super(app, function () { }, new GridNavigator(5, 5, KeyboardMenu.WIDTHS))//, new GridNavigator(5, 10))
+            super(app, function () {}, new GridNavigator(5, 5, KeyboardMenu.WIDTHS))//, new GridNavigator(5, 10))
             this.text = ""
             this.upperCase = true
 
@@ -185,7 +185,6 @@ namespace microcode {
                 "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
                 "U", "V", "W", "X", "Y", "Z", ",", ".", "?", "!",
                 "^", " ________ ", "Enter"
-                // "^", " ", " ", " ", " ", " ", " ", " ", " ", "D"
             ];
 
             this.next = next
@@ -198,12 +197,6 @@ namespace microcode {
                 this.text += this.btnText[btn.state[0]]
             }
 
-            const botRowBehaviours = [
-                (btn: Button) => { this.changeCase() },
-                defaultBehaviour,
-                (btn: Button) => { this.next(this.text) }
-            ]
-
             for (let i = 0; i < 4; i++) {
                 const xDiff = screen().width / (KeyboardMenu.WIDTHS[i] + 1);
                 for (let j = 0; j < 10; j++) {
@@ -213,7 +206,7 @@ namespace microcode {
                             style: ButtonStyles.Transparent,
                             icon: bitmaps.create(10, 10),
                             ariaId: "",
-                            x: xDiff * (j + 1) - (screen().width / 2),
+                            x: (xDiff * (j + 1)) - (screen().width / 2),
                             y: (12 * (i + 1)) - 20,
                             onClick: defaultBehaviour,
                             state: [(i * 10) + j]
@@ -221,6 +214,12 @@ namespace microcode {
                     )
                 }
             }
+
+            const botRowBehaviours = [
+                (btn: Button) => { this.changeCase() },
+                (btn: Button) => { this.text += " " },
+                (btn: Button) => { this.next(this.text) }
+            ]
 
             const icons = [bitmaps.create(10, 10), bitmaps.create(63, 10), bitmaps.create(33, 10)]
             const x = [33, 76, 131]
@@ -232,9 +231,8 @@ namespace microcode {
                         icon: icons[i],
                         ariaId: "",
                         x: x[i] - (screen().width / 2),
-                        y: (13 * (4 + 1)) - 20,
-                        onClick: botRowBehaviours[i],
-                        state: [(4 * 10) + i]
+                        y: (13 * 5) - 20,
+                        onClick: botRowBehaviours[i]
                     })
                 )
             }

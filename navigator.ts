@@ -216,7 +216,8 @@ namespace microcode {
         }
 
         public getCurrent(): Button {
-            return this.buttonGroups[0][(this.row * this.widths[this.row]) + this.col]
+            const index = this.widths.slice(0, this.row).reduce((p, c) => p + c, 0)
+            return this.buttonGroups[0][index + this.col]
         }
     }
 
