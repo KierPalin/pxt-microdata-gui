@@ -165,6 +165,10 @@ namespace microcode {
         }
     }
 
+
+    const KEYBOARD_FRAME_COUNTER_CURSOR_ON = 20;
+    const KEYBOARD_FRAME_COUNTER_CURSOR_OFF = 40;
+
     export class KeyboardMenu extends CursorSceneWithPriorPage {
         private static WIDTHS: number[] = [10, 10, 10, 10, 4]
         private btns: Button[]
@@ -172,6 +176,7 @@ namespace microcode {
         private text: string;
         private upperCase: boolean;
         private next: (arg0: string) => void
+        private frameCounter: number;
 
         constructor(app: App, next: (arg0: string) => void) {
             super(app, function () {}, new GridNavigator(5, 5, KeyboardMenu.WIDTHS))//, new GridNavigator(5, 10))
@@ -184,10 +189,11 @@ namespace microcode {
                 "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
                 "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
                 "U", "V", "W", "X", "Y", "Z", ",", ".", "?", "!",
-                "<-", "^", " _______ ", "Enter"
+                "<-", "^", " _______ ", "ENTER"
             ];
 
             this.next = next
+            this.frameCounter = 0;
         }
 
         /* override */ startup() {
@@ -195,6 +201,7 @@ namespace microcode {
 
             const defaultBehaviour = (btn: Button) => {
                 this.text += this.btnText[btn.state[0]]
+                this.frameCounter = KEYBOARD_FRAME_COUNTER_CURSOR_ON
             }
 
             for (let i = 0; i < 4; i++) {
@@ -218,9 +225,10 @@ namespace microcode {
             const botRowBehaviours = [
                 (btn: Button) => { 
                     this.text = (this.text.length > 0) ? this.text.substr(0, this.text.length - 1) : this.text
+                    this.frameCounter = KEYBOARD_FRAME_COUNTER_CURSOR_ON
                 },
                 (btn: Button) => { this.changeCase() },
-                (btn: Button) => { this.text += " " },
+                (btn: Button) => { this.text += " "; this.frameCounter = KEYBOARD_FRAME_COUNTER_CURSOR_ON},
                 (btn: Button) => { this.next(this.text) }
             ]
 
@@ -248,18 +256,32 @@ namespace microcode {
             this.upperCase = !this.upperCase;
 
             if (this.upperCase)
-                this.btnText = this.btnText.map(btn => btn = btn.toUpperCase())
+                this.btnText = this.btnText.map((btn, i) => 
+                    btn = (i < 40) ? btn.toUpperCase() : btn
+                )
             else
-                this.btnText = this.btnText.map(btn => btn = btn.toLowerCase())
+                this.btnText = this.btnText.map((btn, i) => 
+                    btn = (i < 40) ? btn.toLowerCase() : btn
+                )
         }
 
         draw() {
+            this.frameCounter += 1
+
             Screen.fillRect(
                 Screen.LEFT_EDGE,
                 Screen.TOP_EDGE,
                 Screen.WIDTH,
                 41,
                 6
+            )
+
+            Screen.fillRect(
+                Screen.LEFT_EDGE + 3,
+                Screen.TOP_EDGE + 4,
+                Screen.WIDTH - 7,
+                34,
+                15
             )
 
             Screen.fillRect(
@@ -272,12 +294,33 @@ namespace microcode {
 
             screen().printCenter(this.text, 17, 15)
 
+            if (this.frameCounter >= KEYBOARD_FRAME_COUNTER_CURSOR_ON) {
+                screen().print(
+                    "_",
+                    (screen().width / 2) + ((this.text.length * bitmaps.font8.charWidth) / 2),
+                    17,
+                    15
+                )
+                
+                if (this.frameCounter >= KEYBOARD_FRAME_COUNTER_CURSOR_OFF)
+                    this.frameCounter = 0
+            }
+
+
             Screen.fillRect(
                 Screen.LEFT_EDGE,
                 Screen.TOP_EDGE + 41,
                 Screen.WIDTH,
                 Screen.HEIGHT,
                 6
+            )
+
+            Screen.fillRect(
+                Screen.LEFT_EDGE + 4,
+                Screen.TOP_EDGE + 47,
+                Screen.WIDTH - 6,
+                71,
+                15
             )
 
             Screen.fillRect(
