@@ -166,7 +166,7 @@ namespace microcode {
     }
 
     export class KeyboardMenu extends CursorSceneWithPriorPage {
-        private static WIDTHS: number[] = [10, 10, 10, 10, 3]
+        private static WIDTHS: number[] = [10, 10, 10, 10, 4]
         private btns: Button[]
         private btnText: string[]
         private text: string;
@@ -184,7 +184,7 @@ namespace microcode {
                 "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
                 "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
                 "U", "V", "W", "X", "Y", "Z", ",", ".", "?", "!",
-                "^", " ________ ", "Enter"
+                "<-", "^", " _______ ", "Enter"
             ];
 
             this.next = next
@@ -216,14 +216,17 @@ namespace microcode {
             }
 
             const botRowBehaviours = [
+                (btn: Button) => { 
+                    this.text = (this.text.length > 0) ? this.text.substr(0, this.text.length - 1) : this.text
+                },
                 (btn: Button) => { this.changeCase() },
                 (btn: Button) => { this.text += " " },
                 (btn: Button) => { this.next(this.text) }
             ]
 
-            const icons = [bitmaps.create(10, 10), bitmaps.create(63, 10), bitmaps.create(33, 10)]
-            const x = [33, 76, 131]
-            for (let i = 0; i < 3; i++) {
+            const icons = [bitmaps.create(16, 10), bitmaps.create(10, 10), bitmaps.create(55, 10), bitmaps.create(33, 10)]
+            const x = [22, 38, 74, 124]
+            for (let i = 0; i < 4; i++) {
                 this.btns.push(
                     new Button({
                         parent: null,
