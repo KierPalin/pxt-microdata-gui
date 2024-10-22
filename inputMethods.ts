@@ -400,26 +400,25 @@ namespace microcode {
     }
 
     export class CalculatorMenu extends CursorSceneWithPriorPage {
+        private static WIDTHS: number[] = [10, 5, 4]
         private btns: Button[]
         private btnText: string[]
         private text: string;
-        private next: (arg0: GraphableFunction) => void
-        private btnToFnNames: string[]
+        private next: (arg0: GraphableFunction) => void;
+        private frameCounter: number;
+        private shakeText: boolean
+        private shakeTextCounter: number
 
         constructor(app: App, next: (arg0: GraphableFunction) => void) {
-            super(app, function () { }, new GridNavigator(2, 10))
+            super(app, function () { }, new GridNavigator(3, 1, CalculatorMenu.WIDTHS))
             this.text = ""
 
             this.btns = []
             this.btnText = [
                 "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
-                "x", "+", "-", "/", "*", "s", "c", "t", " ", "D"
+                "x", "+", "-", "/", "*", 
+                "sin", "cos", "tan", "ENTER"
             ];
-
-            this.btnToFnNames = [
-                "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
-                "x", "+", "-", "/", "*", "sin", "cos", "tan", " ", "D"
-            ]
 
             this.next = next
         }
@@ -427,17 +426,14 @@ namespace microcode {
         /* override */ startup() {
             super.startup()
 
-            const btnsPerRow = 10;
-            const xDiff = screen().width / (btnsPerRow + 1);
-
             const defaultBehaviour = (btn: Button) => {
-                this.text += this.btnToFnNames[btn.state[0]] + " "
+                this.text += this.btnText[btn.state[0]] + " "
             }
 
             const behaviours = []
-            for (let i = 0; i < 19; i++) {
+            for (let i = 0; i < 18; i++)
                 behaviours.push(defaultBehaviour)
-            }
+
             behaviours.push(
                 (btn: Button) => {
                     const expression = "3 * sin x"
@@ -501,20 +497,34 @@ namespace microcode {
                 }
             )
 
-            for (let i = 0; i < 2; i++) {
-                for (let j = 0; j < 10; j++) {
+            let flatIndex = 0;
+            const bitmapWidths = [
+                10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+                10, 10, 10, 10, 10,
+                25, 25, 25, 35
+            ]
+            const xStarts = [15, 25, 23]
+            for (let i = 0; i < 3; i++) {
+                const width = CalculatorMenu.WIDTHS[i];
+                const len = this.btnText.slice(flatIndex, flatIndex + width).reduce((r, s) => r + s.length, 0)
+                const xDiff = screen().width / (len - this.btnText[flatIndex].length + 2)
+                let cumWidth = 0;
+                
+                for (let j = 0; j < CalculatorMenu.WIDTHS[i]; j++) {
                     this.btns.push(
                         new Button({
                             parent: null,
                             style: ButtonStyles.Transparent,
-                            icon: bitmaps.create(10, 10),
+                            icon: bitmaps.create(bitmapWidths[flatIndex], 10),
                             ariaId: "",
-                            x: xDiff * (j + 1) - (screen().width / 2),
-                            y: (12 * (i + 1)) - 20,
-                            onClick: behaviours[(i * 10) + j],
-                            state: [(i * 10) + j]
+                            x: xStarts[i] + (cumWidth * xDiff) - (screen().width / 2),
+                            y: (13 * i) - 6,
+                            onClick: behaviours[flatIndex],
+                            state: [flatIndex]
                         })
                     )
+                    cumWidth += this.btnText[flatIndex].length
+                    flatIndex += 1
                 }
             }
 
@@ -522,21 +532,112 @@ namespace microcode {
         }
 
         draw() {
+            this.frameCounter += 1
+
+            // Blue base colour:
             Screen.fillRect(
                 Screen.LEFT_EDGE,
                 Screen.TOP_EDGE,
                 Screen.WIDTH,
                 Screen.HEIGHT,
-                12
+                6 // Blue
             )
 
-            screen().printCenter(this.text, 5)
+            // Black border around the text window for depth
+            Screen.fillRect(
+                Screen.LEFT_EDGE + 3,
+                Screen.TOP_EDGE + 4,
+                Screen.WIDTH - 7,
+                34,
+                15 // Black
+            )
+
+            // White text window, slightly smaller than the black
+            Screen.fillRect(
+                Screen.LEFT_EDGE + 6,
+                Screen.TOP_EDGE + 6,
+                Screen.WIDTH - 12,
+                32,
+                1 // White
+            )
+
+
+            // Legal text length, draw a flickering cursor using this.frameCounter:
+            if (this.text.length < KEYBOARD_MAX_TEXT_LENGTH) {
+                screen().printCenter(this.text, 17, 15)
+                if (this.frameCounter >= KEYBOARD_FRAME_COUNTER_CURSOR_ON) {
+                    screen().print(
+                        "_",
+                        (screen().width / 2) + ((this.text.length * bitmaps.font8.charWidth) / 2),
+                        17,
+                        15
+                    )
+
+                    if (this.frameCounter >= KEYBOARD_FRAME_COUNTER_CURSOR_OFF)
+                        this.frameCounter = 0
+                }
+            }
+
+            // Don't draw the cursor if beyond the max length, shake the text a bit:
+            else if (this.shakeText) {
+                if (this.shakeTextCounter % 5 == 0) {
+                    screen().print(
+                        this.text,
+                        (screen().width / 2) - ((this.text.length * bitmaps.font8.charWidth) / 2) - 2,
+                        17,
+                        15
+                    )
+                }
+
+                else {
+                    screen().print(
+                        this.text,
+                        (screen().width / 2) - ((this.text.length * bitmaps.font8.charWidth) / 2),
+                        17,
+                        15
+                    )
+                }
+
+                if (this.shakeTextCounter >= 5) {
+                    this.shakeText = false;
+                    this.shakeTextCounter = 0;
+                }
+
+                else
+                    this.shakeTextCounter += 1
+            }
+
+            // At max-length, done shaking the text:
+            else {
+                screen().printCenter(this.text, 17, 15)
+            }
+
+            // Orange Keyboard with a black shadow on the bot & right edge (depth effect):
+
+            // Black border around right & bot edge:
+            Screen.fillRect(
+                Screen.LEFT_EDGE + 4,
+                Screen.TOP_EDGE + 47,
+                Screen.WIDTH - 6,
+                71,
+                15 // Black
+            )
+
+            // Orange keyboard that the white text will be ontop of:
+            Screen.fillRect(
+                Screen.LEFT_EDGE + 4,
+                Screen.TOP_EDGE + 44,
+                Screen.WIDTH - 8,
+                72,
+                4 // Orange
+            )
 
             for (let i = 0; i < this.btns.length; i++) {
                 this.btns[i].draw()
-                const x = (screen().width / 2) + this.btns[i].xfrm.localPos.x - (this.btnText[i].length * font.charWidth) + 3
-                const y = (screen().height / 2) + this.btns[i].xfrm.localPos.y - (this.btnText[i].length * font.charHeight)
-                screen().print(this.btnText[i], x, y)
+
+                const x = (screen().width / 2) + this.btns[i].xfrm.localPos.x - (this.btns[i].icon.width / 2) + 2
+                const y = (screen().height / 2) + this.btns[i].xfrm.localPos.y + font.charHeight - 12
+                screen().print(this.btnText[i], x, y, 1) // White text
             }
 
             super.draw()
