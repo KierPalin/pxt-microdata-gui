@@ -168,6 +168,7 @@ namespace microcode {
 
     const KEYBOARD_FRAME_COUNTER_CURSOR_ON = 20;
     const KEYBOARD_FRAME_COUNTER_CURSOR_OFF = 40;
+    const KEYBOARD_MAX_TEXT_LENGTH = 20
 
     export class KeyboardMenu extends CursorSceneWithPriorPage {
         private static WIDTHS: number[] = [10, 10, 10, 10, 4]
@@ -177,6 +178,8 @@ namespace microcode {
         private upperCase: boolean;
         private next: (arg0: string) => void
         private frameCounter: number;
+        private shakeText: boolean
+        private shakeTextCounter: number
 
         constructor(app: App, next: (arg0: string) => void) {
             super(app, function () {}, new GridNavigator(5, 5, KeyboardMenu.WIDTHS))//, new GridNavigator(5, 10))
@@ -194,14 +197,21 @@ namespace microcode {
 
             this.next = next
             this.frameCounter = 0;
+            this.shakeText = false;
+            this.shakeTextCounter = 0;
         }
 
         /* override */ startup() {
             super.startup()
 
             const defaultBehaviour = (btn: Button) => {
-                this.text += this.btnText[btn.state[0]]
-                this.frameCounter = KEYBOARD_FRAME_COUNTER_CURSOR_ON
+                if (this.text.length < KEYBOARD_MAX_TEXT_LENGTH) {
+                    this.text += this.btnText[btn.state[0]]
+                    this.frameCounter = KEYBOARD_FRAME_COUNTER_CURSOR_ON
+                }
+                else {
+                    this.shakeText = true
+                }
             }
 
             for (let i = 0; i < 4; i++) {
@@ -224,11 +234,22 @@ namespace microcode {
 
             const botRowBehaviours = [
                 (btn: Button) => { 
-                    this.text = (this.text.length > 0) ? this.text.substr(0, this.text.length - 1) : this.text
+                    this.text = 
+                        (this.text.length > 0)
+                        ? this.text.substr(0, this.text.length - 1) 
+                        : this.text
                     this.frameCounter = KEYBOARD_FRAME_COUNTER_CURSOR_ON
                 },
                 (btn: Button) => { this.changeCase() },
-                (btn: Button) => { this.text += " "; this.frameCounter = KEYBOARD_FRAME_COUNTER_CURSOR_ON},
+                (btn: Button) => { 
+                    if (this.text.length < KEYBOARD_MAX_TEXT_LENGTH) {
+                        this.text += " "; 
+                        this.frameCounter = KEYBOARD_FRAME_COUNTER_CURSOR_ON;
+                    }
+                    else {
+                        this.shakeText = true
+                    }
+                },
                 (btn: Button) => { this.next(this.text) }
             ]
 
@@ -268,67 +289,102 @@ namespace microcode {
         draw() {
             this.frameCounter += 1
 
+            // Blue base colour:
             Screen.fillRect(
                 Screen.LEFT_EDGE,
                 Screen.TOP_EDGE,
                 Screen.WIDTH,
-                41,
-                6
+                Screen.HEIGHT,
+                6 // Blue
             )
 
+            // Black border around the text window for depth
             Screen.fillRect(
                 Screen.LEFT_EDGE + 3,
                 Screen.TOP_EDGE + 4,
                 Screen.WIDTH - 7,
                 34,
-                15
+                15 // Black
             )
-
+            
+            // White text window, slightly smaller than the black
             Screen.fillRect(
                 Screen.LEFT_EDGE + 6,
                 Screen.TOP_EDGE + 6,
                 Screen.WIDTH - 12,
                 32,
-                1
+                1 // White
             )
 
-            screen().printCenter(this.text, 17, 15)
+            
+            // Legal text length, draw a flickering cursor using this.frameCounter:
+            if (this.text.length < KEYBOARD_MAX_TEXT_LENGTH) {
+                screen().printCenter(this.text, 17, 15)
+                if (this.frameCounter >= KEYBOARD_FRAME_COUNTER_CURSOR_ON) {
+                    screen().print(
+                        "_",
+                        (screen().width / 2) + ((this.text.length * bitmaps.font8.charWidth) / 2),
+                        17,
+                        15
+                    )
+                    
+                    if (this.frameCounter >= KEYBOARD_FRAME_COUNTER_CURSOR_OFF)
+                        this.frameCounter = 0
+                }
+            }
+            
+            // Don't draw the cursor if beyond the max length, shake the text a bit:
+            else if (this.shakeText) {
+                if (this.shakeTextCounter % 5 == 0) {
+                    screen().print(
+                        this.text,
+                        (screen().width / 2) - ((this.text.length * bitmaps.font8.charWidth) / 2) - 2,
+                        17,
+                        15
+                    )
+                }
 
-            if (this.frameCounter >= KEYBOARD_FRAME_COUNTER_CURSOR_ON) {
-                screen().print(
-                    "_",
-                    (screen().width / 2) + ((this.text.length * bitmaps.font8.charWidth) / 2),
-                    17,
-                    15
-                )
-                
-                if (this.frameCounter >= KEYBOARD_FRAME_COUNTER_CURSOR_OFF)
-                    this.frameCounter = 0
+                else {
+                    screen().print(
+                        this.text,
+                        (screen().width / 2) - ((this.text.length * bitmaps.font8.charWidth) / 2),
+                        17,
+                        15
+                    )
+                }
+
+                if (this.shakeTextCounter >= 5) {
+                    this.shakeText = false;
+                    this.shakeTextCounter = 0;
+                }
+
+                else
+                    this.shakeTextCounter += 1
             }
 
+            // At max-length, done shaking the text:
+            else {
+                screen().printCenter(this.text, 17, 15)
+            }
 
-            Screen.fillRect(
-                Screen.LEFT_EDGE,
-                Screen.TOP_EDGE + 41,
-                Screen.WIDTH,
-                Screen.HEIGHT,
-                6
-            )
+            // Orange Keyboard with a black shadow on the bot & right edge (depth effect):
 
+            // Black border around right & bot edge:
             Screen.fillRect(
                 Screen.LEFT_EDGE + 4,
                 Screen.TOP_EDGE + 47,
                 Screen.WIDTH - 6,
                 71,
-                15
+                15 // Black
             )
 
+            // Orange keyboard that the white text will be ontop of:
             Screen.fillRect(
                 Screen.LEFT_EDGE + 4,
                 Screen.TOP_EDGE + 44,
                 Screen.WIDTH - 8,
                 72,
-                4
+                4 // Orange
             )
 
             for (let i = 0; i < this.btns.length; i++) {
@@ -336,14 +392,12 @@ namespace microcode {
 
                 const x = (screen().width / 2) + this.btns[i].xfrm.localPos.x - (this.btns[i].icon.width / 2) + 2
                 const y = (screen().height / 2) + this.btns[i].xfrm.localPos.y + font.charHeight - 12
-                screen().print(this.btnText[i], x, y)
+                screen().print(this.btnText[i], x, y, 1) // White text
             }
 
             super.draw()
         }
     }
-
-    type simpleFN = (x: number, val: number) => number;
 
     export class CalculatorMenu extends CursorSceneWithPriorPage {
         private btns: Button[]
