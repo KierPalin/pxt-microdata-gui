@@ -207,7 +207,7 @@ namespace microcode {
                             icon: bitmaps.create(10, 10),
                             ariaId: "",
                             x: (xDiff * (j + 1)) - (screen().width / 2),
-                            y: (12 * (i + 1)) - 20,
+                            y: (13 * (i + 1)) - 18,
                             onClick: defaultBehaviour,
                             state: [(i * 10) + j]
                         })
@@ -234,7 +234,7 @@ namespace microcode {
                         icon: icons[i],
                         ariaId: "",
                         x: x[i] - (screen().width / 2),
-                        y: (13 * 5) - 20,
+                        y: (13 * 5) - 18,
                         onClick: botRowBehaviours[i]
                     })
                 )
@@ -258,11 +258,35 @@ namespace microcode {
                 Screen.LEFT_EDGE,
                 Screen.TOP_EDGE,
                 Screen.WIDTH,
-                Screen.HEIGHT,
-                12
+                41,
+                6
             )
 
-            screen().printCenter(this.text, 5)
+            Screen.fillRect(
+                Screen.LEFT_EDGE + 6,
+                Screen.TOP_EDGE + 6,
+                Screen.WIDTH - 12,
+                32,
+                1
+            )
+
+            screen().printCenter(this.text, 17, 15)
+
+            Screen.fillRect(
+                Screen.LEFT_EDGE,
+                Screen.TOP_EDGE + 41,
+                Screen.WIDTH,
+                Screen.HEIGHT,
+                6
+            )
+
+            Screen.fillRect(
+                Screen.LEFT_EDGE + 4,
+                Screen.TOP_EDGE + 44,
+                Screen.WIDTH - 8,
+                72,
+                4
+            )
 
             for (let i = 0; i < this.btns.length; i++) {
                 this.btns[i].draw()
