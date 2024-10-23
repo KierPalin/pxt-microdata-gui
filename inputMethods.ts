@@ -644,7 +644,55 @@ namespace microcode {
         }
     }
 
-    export class CallbackMenu extends AbstractInputMethod {
+    // type stdCallback = (btn: Button) => void;
+    export class CallbackMenu extends CursorSceneWithPriorPage {
+        private btns: Button[]
+        private btnText: string[]
+        private callbacks: ((btn: Button) => void)[][]
+        
+        constructor(callbacks: ((btn: Button) => void)[][], priorFn?: () => void) {
+            super(app, 
+                (priorFn != null) ? priorFn : function () {},
+                new GridNavigator(
+                    callbacks.length, 
+                    (callbacks.length > 0) ? callbacks[0].length : 0
+                )
+            )
+            this.btns = []
+            this.callbacks = callbacks
+        }
 
+        /* override */ startup() {
+            super.startup()
+
+            for (let i = 0; i < this.callbacks.length; i++) {
+                for (let j = 0; j < this.callbacks[0].length; j++) {
+                    this.btns.push(
+                        new Button({
+                            parent: null,
+                            style: ButtonStyles.Transparent,
+                            icon: bitmaps.create(10, 10),
+                            ariaId: "",
+                            x: screen().width / 2,
+                            y: screen().height / 2,
+                            onClick: this.callbacks[i][j]
+                        })
+                    )
+                }
+            }
+            this.navigator.addButtons(this.btns)
+        }
+
+        draw() {
+            Screen.fillRect(
+                Screen.LEFT_EDGE,
+                Screen.TOP_EDGE,
+                Screen.WIDTH,
+                Screen.HEIGHT,
+                6 // Blue
+            )
+            
+            this.btns.forEach(btn => btn.draw())
+        }
     }
 }
