@@ -93,7 +93,7 @@ namespace microcode {
                 this.tickerValues[this.currentTickerIndex] += 1
                 basic.pause(100)
             }
-            control.onEvent(ControllerButtonEvent.Released, controller.up.id, () => { })
+            control.onEvent(ControllerButtonEvent.Released, controller.up.id, () => {  })
         }
 
         downBtnPressed() {
@@ -727,6 +727,10 @@ namespace microcode {
            this.bounds = opts.bounds
            this.scaling = (opts.scaling) ? opts.scaling : this.scaling
            this.backgroundColour = (opts.colour) ? opts.colour : this.backgroundColour
+
+            // Scale:
+            this.bounds.width *= this.scaling;
+            this.bounds.height *= this.scaling;
         }
 
         hide(): void {this.hidden = true}
@@ -744,13 +748,22 @@ namespace microcode {
     }
     
     export class GUITestComponent extends GUIComponentAbstract {
+        static DEFAULT_WIDTH: number = screen().width / 2;
+        static DEFAULT_HEIGHT: number = screen().height / 2;
+
         constructor(opts: {
             alignment: GUIComponentAlignment,
-            bounds: Bounds,
+            xOffset: number,
+            yOffset: number,
             scaling?: number,
             colour?: number
         }) {
-            super(opts)
+            super({
+                alignment: opts.alignment, 
+                bounds: new microcode.Bounds({width: GUITestComponent.DEFAULT_WIDTH, height: GUITestComponent.DEFAULT_HEIGHT, left: opts.xOffset, top: opts.yOffset}),
+                scaling: opts.scaling, 
+                colour: opts.colour
+            })
         }
 
         draw() {
