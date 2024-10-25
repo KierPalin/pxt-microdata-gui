@@ -644,7 +644,6 @@ namespace microcode {
         }
     }
 
-    // type stdCallback = (btn: Button) => void;
     export class CallbackMenu extends CursorSceneWithPriorPage {
         private btns: Button[]
         private btnText: string[]
@@ -715,19 +714,19 @@ namespace microcode {
         private alignment: GUIComponentAlignment
 
         protected bounds: Bounds;
-        protected backgroundColour: number;
-        private scaling: number;
+        protected backgroundColour: number = 3;
+        private scaling: number = 1.0;
 
-        constructor (
+        constructor (opts: {
             alignment: GUIComponentAlignment,
             bounds: Bounds,
-            scaling: number = 1.0,
-            colour: number
-        ) {
-           this.bounds = bounds
-           this.alignment = alignment
-           this.scaling = scaling
-           this.backgroundColour = colour
+            scaling?: number,
+            colour?: number 
+        }) {
+           this.alignment = opts.alignment
+           this.bounds = opts.bounds
+           this.scaling = (opts.scaling) ? opts.scaling : this.scaling
+           this.backgroundColour = (opts.colour) ? opts.colour : this.backgroundColour
         }
 
         hide(): void {this.hidden = true}
@@ -743,15 +742,15 @@ namespace microcode {
 
         }
     }
-
-
+    
     export class GUITestComponent extends GUIComponentAbstract {
-        constructor(
+        constructor(opts: {
             alignment: GUIComponentAlignment,
             bounds: Bounds,
-            colour: number
-        ) {
-            super(alignment, bounds, 1.0, colour)
+            scaling?: number,
+            colour?: number
+        }) {
+            super(opts)
         }
 
         draw() {
@@ -769,8 +768,7 @@ namespace microcode {
             next?: (arg0: any[]) => void,
             back?: (arg0: any[]) => void,
             components?: GUIComponentAbstract[]
-        }) 
-        {
+        }) {
             super(app, "window")
 
             // if (colour != null)
