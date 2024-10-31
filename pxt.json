@@ -37,7 +37,8 @@
         "graphableFunction.ts",
         "sensors.ts",
         "loggingConfig.ts",
-        "inputMethods.ts"
+        "inputMethods.ts",
+        "guiComponents.ts"
     ],
     "testFiles": [
         "test.ts"
