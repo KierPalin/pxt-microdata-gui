@@ -168,6 +168,337 @@ namespace microcode {
         }
     }
 
+    export class GUISceneAbstract extends GUIComponentAbstract {
+        navigator: INavigator
+        public cursor: Cursor
+        public picker: Picker
+
+        constructor(opts: {
+            alignment: GUIComponentAlignment,
+            xOffset: number,
+            yOffset: number,
+            scaling?: number,
+            colour?: number,
+            navigator?: INavigator
+        }) {
+            super({
+                alignment: opts.alignment,
+                xOffset: opts.xOffset,
+                yOffset: opts.yOffset,
+                width: GUITestComponent.DEFAULT_WIDTH,
+                height: GUITestComponent.DEFAULT_HEIGHT,
+                scaling: opts.scaling,
+                colour: opts.colour
+            })
+
+            this.navigator = opts.navigator
+        }
+
+        protected moveCursor(dir: CursorDir) {
+            try {
+                this.moveTo(this.cursor.move(dir))
+            } catch (e) {
+                if (dir === CursorDir.Up && e.kind === BACK_BUTTON_ERROR_KIND)
+                    this.back()
+                else if (
+                    dir === CursorDir.Down &&
+                    e.kind === FORWARD_BUTTON_ERROR_KIND
+                )
+                    return
+                else throw e 
+            }
+        }
+
+        protected moveTo(target: Button) {
+            if (!target) return
+            this.cursor.moveTo(
+                target.xfrm.worldPos,
+                target.ariaId,
+                target.bounds
+            )
+        }
+
+        /* override */ startup() {
+            super.startup()
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.right.id,
+                () => this.moveCursor(CursorDir.Right)
+            )
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.up.id,
+                () => this.moveCursor(CursorDir.Up)
+            )
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.down.id,
+                () => this.moveCursor(CursorDir.Down)
+            )
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.left.id,
+                () => this.moveCursor(CursorDir.Left)
+            )
+
+            // click
+            const click = () => this.cursor.click()
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.A.id,
+                click
+            )
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.A.id + keymap.PLAYER_OFFSET,
+                click
+            )
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.B.id,
+                () => this.back()
+            )
+
+            this.cursor = new Cursor()
+            this.picker = new Picker(this.cursor)
+            this.navigator = new RowNavigator()
+            this.cursor.navigator = this.navigator
+        }
+
+        back() {
+            if (!this.cursor.cancel()) this.moveCursor(CursorDir.Back)
+        }
+
+        protected handleClick(x: number, y: number) {
+            const target = this.cursor.navigator.screenToButton(
+                x - Screen.HALF_WIDTH,
+                y - Screen.HALF_HEIGHT
+            )
+            if (target) {
+                this.moveTo(target)
+                target.click()
+            } else if (this.picker.visible) {
+                this.picker.hide()
+            }
+        }
+
+        protected handleMove(x: number, y: number) {
+            const btn = this.cursor.navigator.screenToButton(
+                x - Screen.HALF_WIDTH,
+                y - Screen.HALF_HEIGHT
+            )
+            if (btn) {
+                const w = btn.xfrm.worldPos
+                this.cursor.snapTo(w.x, w.y, btn.ariaId, btn.bounds)
+                btn.reportAria(true)
+            }
+        }
+
+        /* override */ shutdown() {
+            this.navigator.clear()
+        }
+
+        /* override */ activate() {
+            super.activate()
+            const btn = this.navigator.initialCursor(0, 0)
+            if (btn) {
+                const w = btn.xfrm.worldPos
+                this.cursor.snapTo(w.x, w.y, btn.ariaId, btn.bounds)
+                btn.reportAria(true)
+            }
+        }
+
+        /* override */ update() {
+            this.cursor.update()
+        }
+
+        /* override */ draw() {
+            this.picker.draw()
+            this.cursor.draw()
+        }
+    }
+
+
+    const KEYBOARD_FRAME_COUNTER_CURSOR_ON = 20;
+    const KEYBOARD_FRAME_COUNTER_CURSOR_OFF = 40;
+    const KEYBOARD_MAX_TEXT_LENGTH = 20
+
+    export class KeyboardComponent extends GUISceneAbstract {
+        private static WIDTHS: number[] = [10, 10, 10, 10, 4]
+        private btns: Button[]
+        private btnText: string[]
+        private text: string;
+        private upperCase: boolean;
+        private next: (arg0: string) => void
+        private frameCounter: number;
+        private shakeText: boolean
+        private shakeTextCounter: number
+
+        constructor(opts: {
+            next: (arg0: string) => void,
+            alignment: GUIComponentAlignment,
+            xOffset: number,
+            yOffset: number,
+            scaling?: number,
+            colour?: number,
+        }) {
+        // constructor(app: App, next: (arg0: string) => void) {
+            // super(app, new GridNavigator(5, 5, KeyboardComponent.WIDTHS))
+
+            super({
+                alignment: opts.alignment,
+                xOffset: opts.xOffset,
+                yOffset: opts.yOffset,
+                width: GUITestComponent.DEFAULT_WIDTH,
+                height: GUITestComponent.DEFAULT_HEIGHT,
+                scaling: opts.scaling,
+                colour: opts.colour
+            })
+
+            this.text = ""
+            this.upperCase = true
+
+            this.btns = []
+            this.btnText = [
+                "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+                "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
+                "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
+                "U", "V", "W", "X", "Y", "Z", ",", ".", "?", "!",
+                "<-", "^", " _______ ", "ENTER"
+            ];
+
+            this.next = opts.next
+            this.frameCounter = 0;
+            this.shakeText = false;
+            this.shakeTextCounter = 0;
+
+            const defaultBehaviour = (btn: Button) => {
+                if (this.text.length < KEYBOARD_MAX_TEXT_LENGTH) {
+                    this.text += this.btnText[btn.state[0]]
+                    this.frameCounter = KEYBOARD_FRAME_COUNTER_CURSOR_ON
+                }
+                else {
+                    this.shakeText = true
+                }
+            }
+
+            for (let i = 0; i < 4; i++) {
+                const xDiff = screen().width / (KeyboardMenu.WIDTHS[i] + 1);
+                for (let j = 0; j < 10; j++) {
+                    this.btns.push(
+                        new Button({
+                            parent: null,
+                            style: ButtonStyles.Transparent,
+                            icon: bitmaps.create(10, 10),
+                            ariaId: "",
+                            x: (xDiff * (j + 1)) - (screen().width / 2),
+                            y: (13 * (i + 1)) - 18,
+                            onClick: defaultBehaviour,
+                            state: [(i * 10) + j]
+                        })
+                    )
+                }
+            }
+
+            const botRowBehaviours = [
+                () => {
+                    this.text =
+                        (this.text.length > 0)
+                            ? this.text.substr(0, this.text.length - 1)
+                            : this.text
+                    this.frameCounter = KEYBOARD_FRAME_COUNTER_CURSOR_ON
+                },
+                () => { this.changeCase() },
+                () => {
+                    if (this.text.length < KEYBOARD_MAX_TEXT_LENGTH) {
+                        this.text += " ";
+                        this.frameCounter = KEYBOARD_FRAME_COUNTER_CURSOR_ON;
+                    }
+                    else {
+                        this.shakeText = true
+                    }
+                },
+                () => { this.next(this.text) }
+            ]
+
+            const icons = [bitmaps.create(16, 10), bitmaps.create(10, 10), bitmaps.create(55, 10), bitmaps.create(33, 10)]
+            const x = [22, 38, 74, 124]
+            for (let i = 0; i < 4; i++) {
+                this.btns.push(
+                    new Button({
+                        parent: null,
+                        style: ButtonStyles.Transparent,
+                        icon: icons[i],
+                        ariaId: "",
+                        x: x[i] - (screen().width / 2),
+                        y: (13 * 5) - 18,
+                        onClick: botRowBehaviours[i]
+                    })
+                )
+            }
+
+            this.changeCase()
+            this.navigator.addButtons(this.btns)
+        }
+
+        private changeCase() {
+            this.upperCase = !this.upperCase;
+
+            if (this.upperCase)
+                this.btnText = this.btnText.map((btn, i) =>
+                    btn = (i < 40) ? btn.toUpperCase() : btn
+                )
+            else
+                this.btnText = this.btnText.map((btn, i) =>
+                    btn = (i < 40) ? btn.toLowerCase() : btn
+                )
+        }
+
+        draw() {
+            this.frameCounter += 1
+
+            // Blue base colour:
+            Screen.fillRect(
+                Screen.LEFT_EDGE,
+                Screen.TOP_EDGE,
+                Screen.WIDTH,
+                Screen.HEIGHT,
+                6 // Blue
+            )
+
+            // Orange Keyboard with a black shadow on the bot & right edge (depth effect):
+
+            // Black border around right & bot edge:
+            Screen.fillRect(
+                Screen.LEFT_EDGE + 4,
+                Screen.TOP_EDGE + 47,
+                Screen.WIDTH - 6,
+                71,
+                15 // Black
+            )
+
+            // Orange keyboard that the white text will be ontop of:
+            Screen.fillRect(
+                Screen.LEFT_EDGE + 4,
+                Screen.TOP_EDGE + 44,
+                Screen.WIDTH - 8,
+                72,
+                4 // Orange
+            )
+
+            for (let i = 0; i < this.btns.length; i++) {
+                this.btns[i].draw()
+
+                const x = (screen().width / 2) + this.btns[i].xfrm.localPos.x - (this.btns[i].icon.width / 2) + 2
+                const y = (screen().height / 2) + this.btns[i].xfrm.localPos.y + font.charHeight - 12
+                screen().print(this.btnText[i], x, y, 1) // White text
+            }
+
+            super.draw()
+        }
+    }
+
+
 
     /**
      * Holds other components,

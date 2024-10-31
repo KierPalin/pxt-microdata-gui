@@ -399,6 +399,7 @@ namespace microcode {
         }
     }
 
+    
     export class CalculatorMenu extends CursorSceneWithPriorPage {
         private static WIDTHS: number[] = [10, 5, 4]
         private btns: Button[]
