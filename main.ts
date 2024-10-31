@@ -3,25 +3,43 @@ const calc = (arg0: microcode.GraphableFunction) => {
     app.popScene()
     app.pushScene(new microcode.LiveDataViewer(app, [arg0]))
 }
-// const mMenu = new microcode.CalculatorMenu(app, calc);
-// app.pushScene(mMenu)
-
-const s = new microcode.Window({
+const w = new microcode.Window({
     app,
     components: [
         new microcode.GUITestComponent({
             alignment: microcode.GUIComponentAlignment.TOP,
             xOffset: 0,
-            yOffset: 0,
+            yOffset: 3,
+            scaling: 0.3
         }),
         new microcode.GUITestComponent({
-            alignment: microcode.GUIComponentAlignment.TOP,
-            xOffset: -(screen().width / 2),
+            alignment: microcode.GUIComponentAlignment.LEFT,
+            xOffset: 3,
             yOffset: 0,
+            scaling: 0.8,
             colour: 4
+        }),
+        new microcode.GUITestComponent({
+            alignment: microcode.GUIComponentAlignment.RIGHT,
+            xOffset: 3,
+            yOffset: 0,
+            scaling: 0.5,
+            colour: 5
+        }),
+        new microcode.GUITestComponent({
+            alignment: microcode.GUIComponentAlignment.CENTRE,
+            xOffset: 0,
+            yOffset: 0,
+            scaling: 0.6,
+            colour: 6
+        }),
+        new microcode.GUITestComponent({
+            alignment: microcode.GUIComponentAlignment.BOT,
+            xOffset: 0,
+            yOffset: 0,
+            scaling: 0.6,
+            colour: 7
         })
     ]
 });
-
-
-app.pushScene(s)
+app.pushScene(w)

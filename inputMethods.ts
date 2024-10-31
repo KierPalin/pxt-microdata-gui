@@ -93,7 +93,7 @@ namespace microcode {
                 this.tickerValues[this.currentTickerIndex] += 1
                 basic.pause(100)
             }
-            control.onEvent(ControllerButtonEvent.Released, controller.up.id, () => {  })
+            control.onEvent(ControllerButtonEvent.Released, controller.up.id, () => { })
         }
 
         downBtnPressed() {
@@ -182,7 +182,7 @@ namespace microcode {
         private shakeTextCounter: number
 
         constructor(app: App, next: (arg0: string) => void) {
-            super(app, function () {}, new GridNavigator(5, 5, KeyboardMenu.WIDTHS))//, new GridNavigator(5, 10))
+            super(app, function () { }, new GridNavigator(5, 5, KeyboardMenu.WIDTHS))//, new GridNavigator(5, 10))
             this.text = ""
             this.upperCase = true
 
@@ -233,17 +233,17 @@ namespace microcode {
             }
 
             const botRowBehaviours = [
-                (btn: Button) => { 
-                    this.text = 
+                (btn: Button) => {
+                    this.text =
                         (this.text.length > 0)
-                        ? this.text.substr(0, this.text.length - 1) 
-                        : this.text
+                            ? this.text.substr(0, this.text.length - 1)
+                            : this.text
                     this.frameCounter = KEYBOARD_FRAME_COUNTER_CURSOR_ON
                 },
                 (btn: Button) => { this.changeCase() },
-                (btn: Button) => { 
+                (btn: Button) => {
                     if (this.text.length < KEYBOARD_MAX_TEXT_LENGTH) {
-                        this.text += " "; 
+                        this.text += " ";
                         this.frameCounter = KEYBOARD_FRAME_COUNTER_CURSOR_ON;
                     }
                     else {
@@ -277,11 +277,11 @@ namespace microcode {
             this.upperCase = !this.upperCase;
 
             if (this.upperCase)
-                this.btnText = this.btnText.map((btn, i) => 
+                this.btnText = this.btnText.map((btn, i) =>
                     btn = (i < 40) ? btn.toUpperCase() : btn
                 )
             else
-                this.btnText = this.btnText.map((btn, i) => 
+                this.btnText = this.btnText.map((btn, i) =>
                     btn = (i < 40) ? btn.toLowerCase() : btn
                 )
         }
@@ -306,7 +306,7 @@ namespace microcode {
                 34,
                 15 // Black
             )
-            
+
             // White text window, slightly smaller than the black
             Screen.fillRect(
                 Screen.LEFT_EDGE + 6,
@@ -316,7 +316,7 @@ namespace microcode {
                 1 // White
             )
 
-            
+
             // Legal text length, draw a flickering cursor using this.frameCounter:
             if (this.text.length < KEYBOARD_MAX_TEXT_LENGTH) {
                 screen().printCenter(this.text, 17, 15)
@@ -327,12 +327,12 @@ namespace microcode {
                         17,
                         15
                     )
-                    
+
                     if (this.frameCounter >= KEYBOARD_FRAME_COUNTER_CURSOR_OFF)
                         this.frameCounter = 0
                 }
             }
-            
+
             // Don't draw the cursor if beyond the max length, shake the text a bit:
             else if (this.shakeText) {
                 if (this.shakeTextCounter % 5 == 0) {
@@ -416,7 +416,7 @@ namespace microcode {
             this.btns = []
             this.btnText = [
                 "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
-                "x", "+", "-", "/", "*", 
+                "x", "+", "-", "/", "*",
                 "sin", "cos", "tan", "ENTER"
             ];
 
@@ -509,7 +509,7 @@ namespace microcode {
                 const len = this.btnText.slice(flatIndex, flatIndex + width).reduce((r, s) => r + s.length, 0)
                 const xDiff = screen().width / (len - this.btnText[flatIndex].length + 2)
                 let cumWidth = 0;
-                
+
                 for (let j = 0; j < CalculatorMenu.WIDTHS[i]; j++) {
                     this.btns.push(
                         new Button({
@@ -648,12 +648,12 @@ namespace microcode {
         private btns: Button[]
         private btnText: string[]
         private callbacks: ((btn: Button) => void)[][]
-        
+
         constructor(callbacks: ((btn: Button) => void)[][], priorFn?: () => void) {
-            super(app, 
-                (priorFn != null) ? priorFn : function () {},
+            super(app,
+                (priorFn != null) ? priorFn : function () { },
                 new GridNavigator(
-                    callbacks.length, 
+                    callbacks.length,
                     (callbacks.length > 0) ? callbacks[0].length : 0
                 )
             )
@@ -690,7 +690,7 @@ namespace microcode {
                 Screen.HEIGHT,
                 6 // Blue
             )
-            
+
             this.btns.forEach(btn => btn.draw())
         }
     }
@@ -715,38 +715,110 @@ namespace microcode {
 
         protected bounds: Bounds;
         protected backgroundColour: number = 3;
+
         private scaling: number = 1.0;
 
-        constructor (opts: {
-            alignment: GUIComponentAlignment,
-            bounds: Bounds,
-            scaling?: number,
-            colour?: number 
-        }) {
-           this.alignment = opts.alignment
-           this.bounds = opts.bounds
-           this.scaling = (opts.scaling) ? opts.scaling : this.scaling
-           this.backgroundColour = (opts.colour) ? opts.colour : this.backgroundColour
+        private xOffset: number;
+        private yOffset: number;
+        private unscaledComponentWidth: number;
+        private unscaledComponentHeight: number;
 
-            // Scale:
-            this.bounds.width *= this.scaling;
-            this.bounds.height *= this.scaling;
+        constructor(opts: {
+            alignment: GUIComponentAlignment,
+            xOffset: number,
+            yOffset: number,
+            width: number,
+            height: number,
+            scaling?: number,
+            colour?: number
+        }) {
+            this.alignment = opts.alignment
+
+            this.scaling = (opts.scaling) ? opts.scaling : this.scaling
+            this.backgroundColour = (opts.colour) ? opts.colour : this.backgroundColour
+
+            this.xOffset = opts.xOffset
+            this.yOffset = opts.yOffset
+            this.unscaledComponentWidth = opts.width
+            this.unscaledComponentHeight = opts.height
+
+            const pos = this.getLeftAndTop()
+            const left = pos[0];
+            const top = pos[1];
+
+            this.bounds = new microcode.Bounds({
+                width: this.unscaledComponentWidth * this.scaling,
+                height: this.unscaledComponentHeight * this.scaling,
+                left,
+                top
+            })
         }
 
-        hide(): void {this.hidden = true}
-        unHide(): void {this.hidden = false}
+        hide(): void { this.hidden = true }
+        unHide(): void { this.hidden = false }
 
-        getAlignment(): number {return this.alignment}
-        isHidden(): boolean {return this.hidden}
+        getAlignment(): number { return this.alignment }
+        isHidden(): boolean { return this.hidden }
 
-        clearContext(): void {this.context = []}
-        setBounds(bounds: Bounds): void {this.bounds = bounds}
+        clearContext(): void { this.context = [] }
+        setBounds(bounds: Bounds): void { this.bounds = bounds }
+
+        getLeftAndTop(): number[] {
+            let left = 0
+            let top = 0
+
+            switch (this.alignment) {
+                case (GUIComponentAlignment.TOP): {
+                    left = -((this.unscaledComponentWidth * this.scaling) / 2) + this.xOffset;
+                    top = -(screen().height / 2) + this.yOffset;
+                    break;
+                }
+                case (GUIComponentAlignment.LEFT): {
+                    left = -(screen().width / 2);
+                    top = -((this.unscaledComponentHeight * this.scaling) / 2) + this.yOffset
+                    break;
+                }
+                case (GUIComponentAlignment.RIGHT): {
+                    left = (this.unscaledComponentWidth * this.scaling);
+                    top = -((this.unscaledComponentHeight * this.scaling) / 2) + this.yOffset
+                    break;
+                }
+                case (GUIComponentAlignment.BOT): {
+                    left = -((this.unscaledComponentWidth * this.scaling) / 2) + this.xOffset;
+                    top = (screen().height / 2) - (this.unscaledComponentHeight * this.scaling) - this.yOffset;
+                    break;
+                }
+                case (GUIComponentAlignment.CENTRE): {
+                    left = -((this.unscaledComponentWidth * this.scaling) / 2) + this.xOffset
+                    top = -((this.unscaledComponentHeight * this.scaling) / 2) + this.yOffset
+                    break;
+                }
+                case (GUIComponentAlignment.TOP_RIGHT): { }
+                case (GUIComponentAlignment.TOP_LEFT): { }
+                case (GUIComponentAlignment.BOT_RIGHT): { }
+                case (GUIComponentAlignment.BOT_LEFT): { }
+            }
+
+            return [left, top]
+        }
+
+        rescale(newScale: number): void {
+            if (this.bounds != null) {
+                this.scaling = newScale
+                this.bounds = new microcode.Bounds({
+                    width: this.unscaledComponentWidth * this.scaling,
+                    height: this.unscaledComponentHeight * this.scaling,
+                    left: this.bounds.left,
+                    top: this.bounds.top
+                })
+            }
+        }
 
         draw(): void {
 
         }
     }
-    
+
     export class GUITestComponent extends GUIComponentAbstract {
         static DEFAULT_WIDTH: number = screen().width / 2;
         static DEFAULT_HEIGHT: number = screen().height / 2;
@@ -759,9 +831,12 @@ namespace microcode {
             colour?: number
         }) {
             super({
-                alignment: opts.alignment, 
-                bounds: new microcode.Bounds({width: GUITestComponent.DEFAULT_WIDTH, height: GUITestComponent.DEFAULT_HEIGHT, left: opts.xOffset, top: opts.yOffset}),
-                scaling: opts.scaling, 
+                alignment: opts.alignment,
+                xOffset: opts.xOffset,
+                yOffset: opts.yOffset,
+                width: GUITestComponent.DEFAULT_WIDTH,
+                height: GUITestComponent.DEFAULT_HEIGHT,
+                scaling: opts.scaling,
                 colour: opts.colour
             })
         }
@@ -786,7 +861,7 @@ namespace microcode {
 
             // if (colour != null)
             //     this.backgroundColor = colour
-            
+
             this.components = opts.components
             this.currentComponentID = 0
 
@@ -802,7 +877,7 @@ namespace microcode {
          * Based upon the sizes, alighment & offset of each
          */
         getComponentBounds(): Bounds[] {
-            const boundaries = [new Bounds({width: 0, height: 0, left: 0, top: 0})]
+            const boundaries = [new Bounds({ width: 0, height: 0, left: 0, top: 0 })]
 
             if (this.components.length == 1) {
                 return [new Bounds({ width: 0, height: 0, left: 0, top: 0 })]
