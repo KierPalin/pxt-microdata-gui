@@ -18,7 +18,6 @@ namespace microcode {
         BOT_LEFT
     }
 
-
     /**
      * Greatly simplifies the creation & alignment of GUI components.
      * A GUI Component has a .context for storage of hidden component state.
@@ -183,55 +182,31 @@ namespace microcode {
             colour?: number,
             next?: (arg0: any[]) => void,
             back?: (arg0: any[]) => void,
-            components?: GUIComponentAbstract[]
+            components?: GUIComponentAbstract[],
+            hideByDefault?: boolean
         }) {
             super(app, "window")
 
-            // if (colour != null)
-            //     this.backgroundColor = colour
+            if (opts.colour != null)
+                this.backgroundColor = opts.colour
 
             this.components = opts.components
             this.currentComponentID = 0
 
-            // if (this.components != null)
-            //     this.focus(this.currentComponentID)
-
-            // const boundaries = this.getComponentBounds();
-            // this.components.forEach((component, i) => component.setBounds(boundaries[i]));
-        }
-
-        /**
-         * Calculate the bounds for each of the components.
-         * Based upon the sizes, alighment & offset of each
-         */
-        getComponentBounds(): Bounds[] {
-            const boundaries = [new Bounds({ width: 0, height: 0, left: 0, top: 0 })]
-
-            if (this.components.length == 1) {
-                return [new Bounds({ width: 0, height: 0, left: 0, top: 0 })]
-            }
-
-            // Attempt to vertically split components that share the same Vert GUIComponentAlignment
-            // Components with same alignment are drawn overlappling
-            // TOP_LEFT, TOP_RIGHT, BOT_LEFT, BOT_RIGHT take implicit precedence over LEFT & RIGHT
-
-            // Components are still drawn top-left to bot-right regardless of bounds
-
-            // Find top aligned-components:
-            let topAlignedComponentIndices: number[] = []
-            this.components.forEach((component, i) => {
-                if (component.getAlignment() == GUIComponentAlignment.TOP)
-                    topAlignedComponentIndices.push(i)
-            })
-
-            return boundaries
+            if (this.components != null && opts.hideByDefault)
+                this.focus(this.currentComponentID)
         }
 
         focus(componentID: number, hideOthers: boolean = true) {
-            this.components.forEach(component => component.hide())
+            if (hideOthers)
+                this.components.forEach(component => component.hide())
             this.components[componentID].unHide()
 
             this.currentComponentID = componentID
+        }
+
+        showAllComponents() {
+            this.components.forEach(component => component.unHide())
         }
 
         startup() {
