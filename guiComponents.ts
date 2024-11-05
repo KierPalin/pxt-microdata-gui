@@ -175,16 +175,18 @@ namespace microcode {
 
         constructor(opts: {
             alignment: GUIComponentAlignment,
-            xOffset: number,
-            yOffset: number,
+            xOffset?: number,
+            yOffset?: number,
+            width: number,
+            height: number,
             scaling?: number,
             colour?: number,
             navigator?: INavigator
         }) {
             super({
                 alignment: opts.alignment,
-                xOffset: opts.xOffset,
-                yOffset: opts.yOffset,
+                xOffset: (opts.xOffset != null) ? opts.xOffset : 0,
+                yOffset: (opts.yOffset != null) ? opts.yOffset : 0,
                 width: GUITestComponent.DEFAULT_WIDTH,
                 height: GUITestComponent.DEFAULT_HEIGHT,
                 scaling: opts.scaling,
@@ -192,34 +194,8 @@ namespace microcode {
             })
 
             this.navigator = opts.navigator
-        }
 
-        protected moveCursor(dir: CursorDir) {
-            try {
-                this.moveTo(this.cursor.move(dir))
-            } catch (e) {
-                if (dir === CursorDir.Up && e.kind === BACK_BUTTON_ERROR_KIND)
-                    this.back()
-                else if (
-                    dir === CursorDir.Down &&
-                    e.kind === FORWARD_BUTTON_ERROR_KIND
-                )
-                    return
-                else throw e 
-            }
-        }
 
-        protected moveTo(target: Button) {
-            if (!target) return
-            this.cursor.moveTo(
-                target.xfrm.worldPos,
-                target.ariaId,
-                target.bounds
-            )
-        }
-
-        /* override */ startup() {
-            super.startup()
             control.onEvent(
                 ControllerButtonEvent.Pressed,
                 controller.right.id,
@@ -259,10 +235,34 @@ namespace microcode {
                 () => this.back()
             )
 
-            this.cursor = new Cursor()
-            this.picker = new Picker(this.cursor)
-            this.navigator = new RowNavigator()
-            this.cursor.navigator = this.navigator
+            // this.cursor = new Cursor()
+            // this.picker = new Picker(this.cursor)
+            // this.navigator = new RowNavigator()
+            // this.cursor.navigator = this.navigator
+        }
+
+        protected moveCursor(dir: CursorDir) {
+            try {
+                this.moveTo(this.cursor.move(dir))
+            } catch (e) {
+                if (dir === CursorDir.Up && e.kind === BACK_BUTTON_ERROR_KIND)
+                    this.back()
+                else if (
+                    dir === CursorDir.Down &&
+                    e.kind === FORWARD_BUTTON_ERROR_KIND
+                )
+                    return
+                else throw e 
+            }
+        }
+
+        protected moveTo(target: Button) {
+            if (!target) return
+            this.cursor.moveTo(
+                target.xfrm.worldPos,
+                target.ariaId,
+                target.bounds
+            )
         }
 
         back() {
@@ -299,7 +299,7 @@ namespace microcode {
         }
 
         /* override */ activate() {
-            super.activate()
+            // super.activate()
             const btn = this.navigator.initialCursor(0, 0)
             if (btn) {
                 const w = btn.xfrm.worldPos
@@ -324,8 +324,11 @@ namespace microcode {
     const KEYBOARD_MAX_TEXT_LENGTH = 20
 
     export class KeyboardComponent extends GUISceneAbstract {
+        private static DEFAULT_WIDTH: number = screen().width / 2;
+        private static DEFAULT_HEIGHT: number = screen().height / 2;
         private static WIDTHS: number[] = [10, 10, 10, 10, 4]
-        private btns: Button[]
+
+        private btns: Button[]  
         private btnText: string[]
         private text: string;
         private upperCase: boolean;
@@ -337,8 +340,8 @@ namespace microcode {
         constructor(opts: {
             next: (arg0: string) => void,
             alignment: GUIComponentAlignment,
-            xOffset: number,
-            yOffset: number,
+            xOffset?: number,
+            yOffset?: number,
             scaling?: number,
             colour?: number,
         }) {
@@ -347,10 +350,10 @@ namespace microcode {
 
             super({
                 alignment: opts.alignment,
-                xOffset: opts.xOffset,
-                yOffset: opts.yOffset,
-                width: GUITestComponent.DEFAULT_WIDTH,
-                height: GUITestComponent.DEFAULT_HEIGHT,
+                xOffset: (opts.xOffset != null) ? opts.xOffset : 0,
+                yOffset: (opts.yOffset != null) ? opts.yOffset : 0,
+                width: KeyboardComponent.DEFAULT_WIDTH,
+                height: KeyboardComponent.DEFAULT_HEIGHT,
                 scaling: opts.scaling,
                 colour: opts.colour
             })
@@ -383,7 +386,7 @@ namespace microcode {
             }
 
             for (let i = 0; i < 4; i++) {
-                const xDiff = screen().width / (KeyboardMenu.WIDTHS[i] + 1);
+                const xDiff = screen().width / (KeyboardComponent.WIDTHS[i] + 1);
                 for (let j = 0; j < 10; j++) {
                     this.btns.push(
                         new Button({
