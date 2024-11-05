@@ -73,7 +73,16 @@ namespace microcode {
 
         getAlignment(): number { return this.alignment }
         isHidden(): boolean { return this.hidden }
-        
+
+
+        //
+        printCenter(text: string, y: number) {
+            screen().print(
+                text,
+                this.xOffset + (this.unscaledComponentWidth * this.scaling),
+                y
+            )
+        }
 
         /**
          * This should be overriden.
@@ -147,8 +156,8 @@ namespace microcode {
 
         constructor(opts: {
             alignment: GUIComponentAlignment,
-            xOffset: number,
-            yOffset: number,
+            xOffset?: number,
+            yOffset?: number,
             scaling?: number,
             colour?: number
         }) {
@@ -321,18 +330,18 @@ namespace microcode {
 
     const KEYBOARD_FRAME_COUNTER_CURSOR_ON = 20;
     const KEYBOARD_FRAME_COUNTER_CURSOR_OFF = 40;
-    const KEYBOARD_MAX_TEXT_LENGTH = 20
+    const KEYBOARD_MAX_TEXT_LENGTH = 20;
 
     export class KeyboardComponent extends GUISceneAbstract {
         private static DEFAULT_WIDTH: number = screen().width / 2;
         private static DEFAULT_HEIGHT: number = screen().height / 2;
-        private static WIDTHS: number[] = [10, 10, 10, 10, 4]
+        private static WIDTHS: number[] = [10, 10, 10, 10, 4];
 
         private btns: Button[]  
         private btnText: string[]
         private text: string;
         private upperCase: boolean;
-        private next: (arg0: string) => void
+        private next: (arg0: string) => void;
         private frameCounter: number;
         private shakeText: boolean
         private shakeTextCounter: number
