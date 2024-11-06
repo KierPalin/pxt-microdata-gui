@@ -117,7 +117,7 @@ namespace microcode {
                     break;
                 }
                 case (GUIComponentAlignment.RIGHT): {
-                    left = (this.unscaledComponentWidth * this.scaling);
+                    left = (screen().width / 2) - (this.unscaledComponentWidth * this.scaling);
                     top = -((this.unscaledComponentHeight * this.scaling) / 2) + this.yOffset
                     break;
                 }
