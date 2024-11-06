@@ -131,10 +131,26 @@ namespace microcode {
                     top = -((this.unscaledComponentHeight * this.scaling) / 2) + this.yOffset
                     break;
                 }
-                case (GUIComponentAlignment.TOP_RIGHT): { }
-                case (GUIComponentAlignment.TOP_LEFT): { }
-                case (GUIComponentAlignment.BOT_RIGHT): { }
-                case (GUIComponentAlignment.BOT_LEFT): { }
+                case (GUIComponentAlignment.TOP_RIGHT): {
+                    left = ((screen().width / 2) - (this.unscaledComponentWidth * this.scaling)) + this.xOffset;
+                    top = -(screen().height / 2) + this.yOffset;
+                    break;
+                }
+                case (GUIComponentAlignment.TOP_LEFT): {
+                    left = (-(screen().width / 2)) + this.xOffset;
+                    top = -(screen().height / 2) + this.yOffset;
+                    break;
+                }
+                case (GUIComponentAlignment.BOT_RIGHT): {
+                    left = ((screen().width / 2) - (this.unscaledComponentWidth * this.scaling)) + this.xOffset;
+                    top = (screen().height / 2) - (this.unscaledComponentHeight * this.scaling) - this.yOffset;
+                    break;
+                }
+                case (GUIComponentAlignment.BOT_LEFT): {
+                    left = (-(screen().width / 2)) + this.xOffset;
+                    top = (screen().height / 2) - (this.unscaledComponentHeight * this.scaling) - this.yOffset;
+                    break;
+                }
             }
 
             return [left, top]
