@@ -8,38 +8,43 @@ const w = new microcode.Window({
     components: [
         new microcode.GUITestComponent({
             alignment: microcode.GUIComponentAlignment.TOP_RIGHT,
-            xOffset: -3,
+            xOffset: 0,
             yOffset: 4,
-            scaling: 0.9,
+            xScaling: 0.4,
+            yScaling: 0.3,
             title: "Howdy"
         }),
         new microcode.GUITestComponent({
             alignment: microcode.GUIComponentAlignment.TOP_LEFT,
             xOffset: 1,
             yOffset: 0,
-            scaling: 0.5,
+            xScaling: 0.5,
+            yScaling: 0.5,
             colour: 4,
-            title: "woweee"
+            title: "hiya"
         }),
         new microcode.GUITestComponent({
             alignment: microcode.GUIComponentAlignment.CENTRE,
             xOffset: 3,
             yOffset: 0,
-            scaling: 0.7,
+            xScaling: 0.7,
+            yScaling: 0.9,
             colour: 5
         }),
         new microcode.GUITestComponent({
             alignment: microcode.GUIComponentAlignment.BOT_LEFT,
             xOffset: 0,
             yOffset: 0,
-            scaling: 0.4,
+            xScaling: 0.4,
+            yScaling: 0.4,
             colour: 6
         }),
         new microcode.GUITestComponent({
             alignment: microcode.GUIComponentAlignment.BOT,
             xOffset: 0,
             yOffset: 0,
-            scaling: 0.4,
+            xScaling: 0.3,
+            yScaling: 0.3,
             colour: 7
         })
     ]

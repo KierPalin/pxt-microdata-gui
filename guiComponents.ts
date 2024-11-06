@@ -30,7 +30,8 @@ namespace microcode {
         protected bounds: Bounds;
         protected backgroundColour: number = 3;
 
-        private scaling: number = 1.0;
+        private xScaling: number = 1.0;
+        private yScaling: number = 1.0;
 
         private xOffset: number;
         private yOffset: number;
@@ -46,7 +47,8 @@ namespace microcode {
             height: number,
             xOffset?: number,
             yOffset?: number,
-            scaling?: number,
+            xScaling?: number,
+            yScaling?: number,
             colour?: number,
             border?: boolean
         }) {
@@ -54,7 +56,9 @@ namespace microcode {
 
             this.alignment = opts.alignment
 
-            this.scaling = (opts.scaling) ? opts.scaling : this.scaling
+            this.xScaling = (opts.xScaling) ? opts.xScaling : this.xScaling
+            this.yScaling = (opts.yScaling) ? opts.yScaling : this.yScaling
+
             this.backgroundColour = (opts.colour) ? opts.colour : this.backgroundColour
 
             this.xOffset = (opts.xOffset != null) ? opts.xOffset : 0
@@ -68,8 +72,8 @@ namespace microcode {
             const top = pos[1];
 
             this.bounds = new microcode.Bounds({
-                width: this.unscaledComponentWidth * this.scaling,
-                height: this.unscaledComponentHeight * this.scaling,
+                width: this.unscaledComponentWidth * this.xScaling,
+                height: this.unscaledComponentHeight * this.yScaling,
                 left,
                 top
             })
@@ -86,7 +90,7 @@ namespace microcode {
             const textOffset = (font.charWidth * text.length) / 2
             screen().print(
                 text,
-                (screen().width / 2) + this.bounds.left + ((this.unscaledComponentWidth * this.scaling) / 2) - textOffset,
+                (screen().width / 2) + this.bounds.left + ((this.unscaledComponentWidth * this.xScaling) / 2) - textOffset,
                 (screen().height / 2) + this.bounds.top + 1
             )
         }
@@ -107,32 +111,32 @@ namespace microcode {
 
             switch (this.alignment) {
                 case (GUIComponentAlignment.TOP): {
-                    left = -((this.unscaledComponentWidth * this.scaling) / 2) + this.xOffset;
+                    left = -((this.unscaledComponentWidth * this.xScaling) / 2) + this.xOffset;
                     top = -(screen().height / 2) + this.yOffset;
                     break;
                 }
                 case (GUIComponentAlignment.LEFT): {
                     left = -(screen().width / 2);
-                    top = -((this.unscaledComponentHeight * this.scaling) / 2) + this.yOffset
+                    top = -((this.unscaledComponentHeight * this.yScaling) / 2) + this.yOffset
                     break;
                 }
                 case (GUIComponentAlignment.RIGHT): {
-                    left = (screen().width / 2) - (this.unscaledComponentWidth * this.scaling);
-                    top = -((this.unscaledComponentHeight * this.scaling) / 2) + this.yOffset
+                    left = (screen().width / 2) - (this.unscaledComponentWidth * this.xScaling);
+                    top = -((this.unscaledComponentHeight * this.yScaling) / 2) + this.yOffset
                     break;
                 }
                 case (GUIComponentAlignment.BOT): {
-                    left = -((this.unscaledComponentWidth * this.scaling) / 2) + this.xOffset;
-                    top = (screen().height / 2) - (this.unscaledComponentHeight * this.scaling) - this.yOffset;
+                    left = -((this.unscaledComponentWidth * this.xScaling) / 2) + this.xOffset;
+                    top = (screen().height / 2) - (this.unscaledComponentHeight * this.yScaling) - this.yOffset;
                     break;
                 }
                 case (GUIComponentAlignment.CENTRE): {
-                    left = -((this.unscaledComponentWidth * this.scaling) / 2) + this.xOffset
-                    top = -((this.unscaledComponentHeight * this.scaling) / 2) + this.yOffset
+                    left = -((this.unscaledComponentWidth * this.xScaling) / 2) + this.xOffset
+                    top = -((this.unscaledComponentHeight * this.yScaling) / 2) + this.yOffset
                     break;
                 }
                 case (GUIComponentAlignment.TOP_RIGHT): {
-                    left = ((screen().width / 2) - (this.unscaledComponentWidth * this.scaling)) + this.xOffset;
+                    left = ((screen().width / 2) - (this.unscaledComponentWidth * this.xScaling)) + this.xOffset;
                     top = -(screen().height / 2) + this.yOffset;
                     break;
                 }
@@ -142,13 +146,13 @@ namespace microcode {
                     break;
                 }
                 case (GUIComponentAlignment.BOT_RIGHT): {
-                    left = ((screen().width / 2) - (this.unscaledComponentWidth * this.scaling)) + this.xOffset;
-                    top = (screen().height / 2) - (this.unscaledComponentHeight * this.scaling) - this.yOffset;
+                    left = ((screen().width / 2) - (this.unscaledComponentWidth * this.xScaling)) + this.xOffset;
+                    top = (screen().height / 2) - (this.unscaledComponentHeight * this.yScaling) - this.yOffset;
                     break;
                 }
                 case (GUIComponentAlignment.BOT_LEFT): {
                     left = (-(screen().width / 2)) + this.xOffset;
-                    top = (screen().height / 2) - (this.unscaledComponentHeight * this.scaling) - this.yOffset;
+                    top = (screen().height / 2) - (this.unscaledComponentHeight * this.yScaling) - this.yOffset;
                     break;
                 }
             }
@@ -156,12 +160,13 @@ namespace microcode {
             return [left, top]
         }
 
-        rescale(newScale: number): void {
+        rescale(xScaling: number, yScaling: number): void {
             if (this.bounds != null) {
-                this.scaling = newScale
+                this.xScaling = xScaling
+                this.yScaling = yScaling
                 this.bounds = new microcode.Bounds({
-                    width: this.unscaledComponentWidth * this.scaling,
-                    height: this.unscaledComponentHeight * this.scaling,
+                    width: this.unscaledComponentWidth * this.xScaling,
+                    height: this.unscaledComponentHeight * this.yScaling,
                     left: this.bounds.left,
                     top: this.bounds.top
                 })
@@ -386,7 +391,8 @@ namespace microcode {
             alignment: GUIComponentAlignment,
             xOffset?: number,
             yOffset?: number,
-            scaling?: number,
+            xScaling?: number,
+            yScaling?: number,
             colour?: number,
             border?: boolean,
             title?: string
@@ -397,7 +403,8 @@ namespace microcode {
                 yOffset: (opts.yOffset != null) ? opts.yOffset : 0,
                 width: GUITestComponent.DEFAULT_WIDTH,
                 height: GUITestComponent.DEFAULT_HEIGHT,
-                scaling: opts.scaling,
+                xScaling: opts.xScaling,
+                yScaling: opts.yScaling,
                 colour: opts.colour,
                 border: opts.border
             })
@@ -436,7 +443,8 @@ namespace microcode {
             yOffset?: number,
             width: number,
             height: number,
-            scaling?: number,
+            xScaling?: number,
+            yScaling?: number,
             colour?: number,
             navigator?: INavigator
         }) {
@@ -446,7 +454,8 @@ namespace microcode {
                 yOffset: (opts.yOffset != null) ? opts.yOffset : 0,
                 width: GUITestComponent.DEFAULT_WIDTH,
                 height: GUITestComponent.DEFAULT_HEIGHT,
-                scaling: opts.scaling,
+                xScaling: opts.xScaling,
+                yScaling: opts.yScaling,
                 colour: opts.colour
             })
 
@@ -598,7 +607,8 @@ namespace microcode {
             alignment: GUIComponentAlignment,
             xOffset?: number,
             yOffset?: number,
-            scaling?: number,
+            xScaling?: number,
+            yScaling?: number,
             colour?: number,
         }) {
         // constructor(app: App, next: (arg0: string) => void) {
@@ -610,7 +620,8 @@ namespace microcode {
                 yOffset: (opts.yOffset != null) ? opts.yOffset : 0,
                 width: KeyboardComponent.DEFAULT_WIDTH,
                 height: KeyboardComponent.DEFAULT_HEIGHT,
-                scaling: opts.scaling,
+                xScaling: opts.xScaling,
+                yScaling: opts.yScaling,
                 colour: opts.colour
             })
 
