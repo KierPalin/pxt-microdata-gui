@@ -6,7 +6,7 @@ const calc = (arg0: microcode.GraphableFunction) => {
 const w = new microcode.Window({
     app,
     components: [
-        new microcode.GUITestComponent({
+        new microcode.GUIBox({
             alignment: microcode.GUIComponentAlignment.TOP_RIGHT,
             xOffset: 0,
             yOffset: 4,
@@ -14,7 +14,7 @@ const w = new microcode.Window({
             yScaling: 0.3,
             title: "Howdy"
         }),
-        new microcode.GUITestComponent({
+        new microcode.GUIBox({
             alignment: microcode.GUIComponentAlignment.TOP_LEFT,
             xOffset: 1,
             yOffset: 0,
@@ -23,7 +23,7 @@ const w = new microcode.Window({
             colour: 4,
             title: "hiya"
         }),
-        new microcode.GUITestComponent({
+        new microcode.GUIBox({
             alignment: microcode.GUIComponentAlignment.CENTRE,
             xOffset: 3,
             yOffset: 0,
@@ -31,7 +31,7 @@ const w = new microcode.Window({
             yScaling: 0.9,
             colour: 5
         }),
-        new microcode.GUITestComponent({
+        new microcode.GUIBox({
             alignment: microcode.GUIComponentAlignment.BOT_LEFT,
             xOffset: 0,
             yOffset: 0,
@@ -39,7 +39,7 @@ const w = new microcode.Window({
             yScaling: 0.4,
             colour: 6
         }),
-        new microcode.GUITestComponent({
+        new microcode.GUIBox({
             alignment: microcode.GUIComponentAlignment.BOT,
             xOffset: 0,
             yOffset: 0,
@@ -49,4 +49,9 @@ const w = new microcode.Window({
         })
     ]
 });
-app.pushScene(w)
+// app.pushScene(w)
+
+
+const kb = new microcode.KeyboardMenu(app, (x) => basic.showString(x))
+
+app.pushScene(kb)

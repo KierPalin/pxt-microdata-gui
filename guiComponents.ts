@@ -23,6 +23,9 @@ namespace microcode {
      * A GUI Component has a .context for storage of hidden component state.
      */
     abstract class GUIComponentAbstract extends Scene {
+        public static DEFAULT_WIDTH: number = screen().width / 2;
+        public static DEFAULT_HEIGHT: number = screen().height / 2;
+
         private hidden: boolean;
         private context: any[];
         private alignment: GUIComponentAlignment
@@ -380,11 +383,8 @@ namespace microcode {
         }
     }
 
-    export class GUITestComponent extends GUIComponentAbstract {
-        static DEFAULT_WIDTH: number = screen().width / 2;
-        static DEFAULT_HEIGHT: number = screen().height / 2;
-
-        private btns: Button[]
+    export class GUIBox extends GUIComponentAbstract {
+        // private btns: Button[]
         private title: string
 
         constructor(opts: {
@@ -401,36 +401,60 @@ namespace microcode {
                 alignment: opts.alignment,
                 xOffset: (opts.xOffset != null) ? opts.xOffset : 0,
                 yOffset: (opts.yOffset != null) ? opts.yOffset : 0,
-                width: GUITestComponent.DEFAULT_WIDTH,
-                height: GUITestComponent.DEFAULT_HEIGHT,
+                width: GUIBox.DEFAULT_WIDTH,
+                height: GUIBox.DEFAULT_HEIGHT,
                 xScaling: opts.xScaling,
                 yScaling: opts.yScaling,
                 colour: opts.colour,
                 border: opts.border
             })
 
-            this.btns = [
-                new microcode.Button({
-                    icon: "",
-                    x: -(10 * ((opts.xOffset != null) ? opts.xOffset : 1)),
-                    y: -30
-                })
-            ]
+            // this.btns = [
+            //     new microcode.Button({
+            //         icon: "",
+            //         x: -(10 * ((opts.xOffset != null) ? opts.xOffset : 1)),
+            //         y: -30
+            //     })
+            // ]
 
             this.title = (opts.title != null) ? opts.title : ""
 
-            this.nav = new microcode.GridNavigator(3, 4)
-            this.nav.addButtons(this.btns)
+            // this.nav = new microcode.GridNavigator(3, 4)
+            // this.nav.addButtons(this.btns)
         }
 
         draw() {
             super.draw()
             this.printCenter(this.title)
-            // this.bounds.fillRect(this.backgroundColour)
 
-            // this.btns.forEach(btn => btn.draw())
+
         }
     }
+
+
+    export class GUISlider extends GUIBox {
+        constructor(opts: {
+            alignment: GUIComponentAlignment,
+            xOffset?: number,
+            yOffset?: number,
+            xScaling?: number,
+            yScaling?: number,
+            colour?: number,
+            border?: boolean,
+            title?: string
+        }) {
+            super({
+                alignment: opts.alignment,
+                xOffset: (opts.xOffset != null) ? opts.xOffset : 0,
+                yOffset: (opts.yOffset != null) ? opts.yOffset : 0,
+                xScaling: opts.xScaling,
+                yScaling: opts.yScaling,
+                colour: opts.colour,
+                border: opts.border
+            })
+        }
+    }
+
 
     export class GUISceneAbstract extends GUIComponentAbstract {
         navigator: INavigator
@@ -452,8 +476,8 @@ namespace microcode {
                 alignment: opts.alignment,
                 xOffset: (opts.xOffset != null) ? opts.xOffset : 0,
                 yOffset: (opts.yOffset != null) ? opts.yOffset : 0,
-                width: GUITestComponent.DEFAULT_WIDTH,
-                height: GUITestComponent.DEFAULT_HEIGHT,
+                width: GUIBox.DEFAULT_WIDTH,
+                height: GUIBox.DEFAULT_HEIGHT,
                 xScaling: opts.xScaling,
                 yScaling: opts.yScaling,
                 colour: opts.colour
@@ -589,8 +613,8 @@ namespace microcode {
     const KEYBOARD_MAX_TEXT_LENGTH = 20;
 
     export class KeyboardComponent extends GUISceneAbstract {
-        private static DEFAULT_WIDTH: number = screen().width
-        private static DEFAULT_HEIGHT: number = 80
+        public static DEFAULT_WIDTH: number = screen().width
+        public static DEFAULT_HEIGHT: number = 80
         private static WIDTHS: number[] = [10, 10, 10, 10, 4]
         private btns: Button[]
         private btnText: string[]
