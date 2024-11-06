@@ -38,10 +38,10 @@ const w = new microcode.Window({
             colour: 5
         }),
         new microcode.GUIGraph({
-            alignment: microcode.GUIComponentAlignment.BOT_RIGHT,
+            alignment: microcode.GUIComponentAlignment.TOP_LEFT,
             graphableFns: [gf],
-            xOffset: 0,
-            yOffset: 5,
+            xOffset: -10,
+            yOffset: 10,
             xScaling: 1,
             yScaling: 1,
             colour: 6

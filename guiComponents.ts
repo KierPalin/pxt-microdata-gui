@@ -523,7 +523,7 @@ namespace microcode {
                         screen().print(
                             sensor.getNthReading(sensor.getBufferLength() - 1).toString().slice(0, 5),
                             this.bounds.left + this.bounds.width + (screen().width / 2) - 4,
-                            (screen().height / 2) - y + this.bounds.height - 7,
+                            y + top + this.bounds.height - 7,
                             color,
                             bitmaps.font5,
                         )
