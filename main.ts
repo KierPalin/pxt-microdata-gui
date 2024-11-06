@@ -10,14 +10,16 @@ const w = new microcode.Window({
             alignment: microcode.GUIComponentAlignment.TOP,
             xOffset: 0,
             yOffset: 4,
-            scaling: 0.3
+            scaling: 0.3,
+            title: "Howdy"
         }),
         new microcode.GUITestComponent({
             alignment: microcode.GUIComponentAlignment.LEFT,
             xOffset: 3,
             yOffset: 0,
             scaling: 0.8,
-            colour: 4
+            colour: 4,
+            title: "woweee"
         }),
         new microcode.GUITestComponent({
             alignment: microcode.GUIComponentAlignment.RIGHT,

@@ -82,12 +82,12 @@ namespace microcode {
         isHidden(): boolean { return this.hidden }
 
 
-        printCenter(text: string, y: number) {
-            const textOffset = (font.charWidth * (text.length) + 1)
+        printCenter(text: string) {
+            const textOffset = (font.charWidth * text.length) / 2
             screen().print(
                 text,
-                (this.xOffset + textOffset + (this.unscaledComponentWidth * this.scaling) / 2),
-                y
+                (screen().width / 2) + this.bounds.left + ((this.unscaledComponentWidth * this.scaling) / 2) - textOffset,
+                (screen().height / 2) + this.bounds.top + 1
             )
         }
 
@@ -272,7 +272,7 @@ namespace microcode {
                 0xc
             )
 
-            this.printCenter(this.title, 2)
+            this.printCenter(this.title)
 
             // if (this.picker == null || this.cursor == null) {
             //     basic.showString("Y")
@@ -364,6 +364,7 @@ namespace microcode {
         static DEFAULT_HEIGHT: number = screen().height / 2;
 
         private btns: Button[]
+        private title: string
 
         constructor(opts: {
             alignment: GUIComponentAlignment,
@@ -371,7 +372,8 @@ namespace microcode {
             yOffset?: number,
             scaling?: number,
             colour?: number,
-            border?: boolean
+            border?: boolean,
+            title?: string
         }) {
             super({
                 alignment: opts.alignment,
@@ -392,12 +394,15 @@ namespace microcode {
                 })
             ]
 
+            this.title = (opts.title != null) ? opts.title : ""
+
             this.nav = new microcode.GridNavigator(3, 4)
             this.nav.addButtons(this.btns)
         }
 
         draw() {
             super.draw()
+            this.printCenter(this.title)
             // this.bounds.fillRect(this.backgroundColour)
 
             // this.btns.forEach(btn => btn.draw())
