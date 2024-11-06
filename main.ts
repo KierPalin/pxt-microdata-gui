@@ -29,19 +29,11 @@ const w = new microcode.Window({
             yScaling: 0.8,
             colour: 4
         }),
-        new microcode.GUIBox({
-            alignment: microcode.GUIComponentAlignment.RIGHT,
-            xOffset: 3,
-            yOffset: 0,
-            xScaling: 0.5,
-            yScaling: 0.5,
-            colour: 5
-        }),
         new microcode.GUIGraph({
-            alignment: microcode.GUIComponentAlignment.TOP_LEFT,
+            alignment: microcode.GUIComponentAlignment.RIGHT,
             graphableFns: [gf],
             xOffset: -10,
-            yOffset: 10,
+            yOffset: 0,
             xScaling: 1,
             yScaling: 1,
             colour: 6
