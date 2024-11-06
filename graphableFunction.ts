@@ -15,11 +15,12 @@ namespace microcode {
         lastLoggedEventDescription: string
         dataBuffer: number[]
         lastLoggedReading: number
+        screenHeight: number
         heightNormalisedDataBuffer: number[]
 
         fnToSample: (x: number) => number
 
-        constructor(fnToSample: (x: number) => number) {
+        constructor(fnToSample: (x: number) => number, screenHeight?: number) {
             this.maxBufferSize = 80
             this.totalMeasurements = 0
             this.numberOfReadings = 0
@@ -28,6 +29,7 @@ namespace microcode {
             this.lastLoggedEventDescription = ""
             this.dataBuffer = []
             this.lastLoggedReading = 0
+            this.screenHeight = screenHeight
             this.heightNormalisedDataBuffer = []
 
             this.fnToSample = fnToSample
@@ -101,7 +103,7 @@ namespace microcode {
 
             this.heightNormalisedDataBuffer = []
             for (let i = 0; i < this.dataBuffer.length; i++) {
-                this.heightNormalisedDataBuffer.push(Math.round(Screen.HEIGHT - ((this.dataBuffer[i] - min) / range) * (BUFFERED_SCREEN_HEIGHT - fromY)) - fromY);
+                this.heightNormalisedDataBuffer.push(Math.round(this.screenHeight - ((this.dataBuffer[i] - min) / range) * this.screenHeight) - fromY);
             }
         }
 

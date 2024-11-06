@@ -455,6 +455,158 @@ namespace microcode {
         }
     }
 
+    export class GUIGraph extends GUIBox {
+        private graphableFns: GraphableFunction[]
+
+        constructor(opts: {
+            alignment: GUIComponentAlignment,
+            graphableFns: GraphableFunction[],
+            xOffset?: number,
+            yOffset?: number,
+            xScaling?: number,
+            yScaling?: number,
+            colour?: number,
+            border?: boolean,
+            title?: string
+        }) {
+            super({
+                alignment: opts.alignment,
+                xOffset: (opts.xOffset != null) ? opts.xOffset : 0,
+                yOffset: (opts.yOffset != null) ? opts.yOffset : 0,
+                xScaling: opts.xScaling,
+                yScaling: opts.yScaling,
+                colour: opts.colour,
+                border: opts.border
+            })
+
+            this.graphableFns = opts.graphableFns
+        }
+
+        draw() {
+            super.draw()
+
+            const left = this.bounds.left
+            const top = this.bounds.top
+
+            this.bounds.fillRect(15)
+
+            //-------------------------------
+            // Load the buffer with new data:
+            //-------------------------------
+
+            for (let i = 0; i < this.graphableFns.length; i++) {
+                const hasSpace = this.graphableFns[i].getBufferLength() < this.graphableFns[i].getMaxBufferSize()
+                this.graphableFns[i].readIntoBufferOnce((screen().height / 2) + top) // 8
+            }
+
+            //----------------------------
+            // Draw sensor lines & ticker:
+            //----------------------------
+            for (let i = 0; i < this.graphableFns.length; i++) {
+                const sensor = this.graphableFns[i]
+                const color: number = 3
+
+                // Draw lines:
+                sensor.draw(
+                    (screen().width / 2) + left + 3,
+                    color,
+                )
+
+                // Draw the latest reading on the right-hand side as a Ticker if at no-zoom:
+                if (sensor.getHeightNormalisedBufferLength() > 0) {
+                    const reading = sensor.getReading()
+                    const range = Math.abs(sensor.getMinimum()) + sensor.getMaximum()
+                    // const y = Math.round(this.bounds.height - ((((reading - sensor.getMinimum()) / range) * (this.bounds.height))))
+                    // (screen().height / 2)
+                    const y = Math.round(this.bounds.height - (this.bounds.height * ((reading - sensor.getMinimum()) / range)))
+
+                    // Make sure the ticker won't be cut-off by other UI elements
+                    // if (y > sensor.getMinimum() + 5) {
+                        screen().print(
+                            sensor.getNthReading(sensor.getBufferLength() - 1).toString().slice(0, 5),
+                            this.bounds.width - (4 * font.charWidth),
+                            // y - (screen().height / 2),
+                            y + (screen().height / 2),
+                            color,
+                            bitmaps.font5,
+                        )
+                    // }
+                }
+            }
+
+            //---------------------------------
+            // Draw the axis and their markers:
+            //---------------------------------
+
+
+            //------
+            // Axes:
+            //------
+            for (let i = 0; i < 2; i++) {
+                // X-Axis:
+                screen().drawLine(
+                    left + (screen().width / 2),
+                    (screen().height / 2) + top + this.bounds.height + i,
+                    left + this.bounds.width + (screen().width / 2),
+                    (screen().height / 2) + top + this.bounds.height + i,
+                    5
+                );
+
+                // Y-Axis:
+                screen().drawLine(
+                    left + (screen().width / 2) + i,
+                    (screen().height / 2) + top,
+                    left + (screen().width / 2) + i, 
+                    (screen().height / 2) + this.bounds.height + top,
+                    5
+                );
+            }
+
+            //----------
+            // Ordinate:
+            //----------
+            // if (this.globalSensorMinimum != null && this.globalSensorMaximum != null) {
+            //     // Bot:
+            //     screen().print(
+            //         this.globalSensorMinimum.toString(),
+            //         (6 * font.charWidth) - (this.globalSensorMinimum.toString().length * font.charWidth),
+            //         this.bounds.height - this.windowBotBuffer + this.yScrollOffset + this.yScrollOffset - (Screen.HEIGHT * 0.03125), // 4 
+            //         15
+            //     )
+
+            //     // Top:
+            //     screen().print(
+            //         this.globalSensorMaximum.toString(),
+            //         (6 * font.charWidth) - (this.globalSensorMaximum.toString().length * font.charWidth),
+            //         Screen.HEIGHT - this.bounds.height + this.windowTopBuffer - Math.floor(0.1 * this.yScrollOffset),
+            //         15
+            //     )
+            // }
+
+            //----------
+            // Abscissa:
+            //----------
+
+            // Start
+            screen().print(
+                this.graphableFns[0].numberOfReadings.toString(),
+                (screen().width / 2) + this.bounds.left,
+                this.bounds.top + this.bounds.height + (screen().height / 2) + 3,
+                1
+            )
+
+            // End:
+            const end: string = (this.graphableFns[0].numberOfReadings + this.graphableFns[0].getHeightNormalisedBufferLength()).toString()
+            screen().print(
+                end,
+                (screen().width / 2) + this.bounds.left + this.bounds.width - (end.length * font.charWidth) + 2,
+                this.bounds.top + this.bounds.height + (screen().height / 2) + 3,
+                1
+            )
+            basic.pause(100);
+        }
+    }
+
 
     export class GUISceneAbstract extends GUIComponentAbstract {
         navigator: INavigator

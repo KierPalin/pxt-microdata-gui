@@ -3,6 +3,18 @@ const calc = (arg0: microcode.GraphableFunction) => {
     app.popScene()
     app.pushScene(new microcode.LiveDataViewer(app, [arg0]))
 }
+
+
+let y = 0;
+input.onButtonPressed(Button.A, function() {
+    y += 10
+})
+
+// const ldv = new microcode.LiveDataViewer(app, [
+const gf = new microcode.GraphableFunction((x) => Math.min(y, 90))
+// ])
+
+
 const w = new microcode.Window({
     app,
     components: [
@@ -23,13 +35,13 @@ const w = new microcode.Window({
             colour: 4,
             title: "hiya"
         }),
-        new microcode.GUIBox({
+        new microcode.GUIGraph({
             alignment: microcode.GUIComponentAlignment.CENTRE,
+            graphableFns: [gf],
             xOffset: 3,
             yOffset: 0,
-            xScaling: 0.7,
-            yScaling: 0.9,
-            colour: 5
+            xScaling: 1,
+            yScaling: 1
         }),
         new microcode.GUIBox({
             alignment: microcode.GUIComponentAlignment.BOT_LEFT,
@@ -49,9 +61,19 @@ const w = new microcode.Window({
         })
     ]
 });
-// app.pushScene(w)
+app.pushScene(w)
 
 
-const kb = new microcode.KeyboardMenu(app, (x) => basic.showString(x))
+// const kb = new microcode.KeyboardMenu(app, (x) => basic.showString(x))
+// app.pushScene(kb)
 
-app.pushScene(kb)
+
+// let y = 0;
+// input.onButtonPressed(Button.A, function() {
+//     y += 10
+// })
+
+// const ldv = new microcode.LiveDataViewer(app, [
+//     new microcode.GraphableFunction((x) => Math.min(y, 90))
+// ])
+// app.pushScene(ldv)
