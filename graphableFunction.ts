@@ -89,7 +89,7 @@ namespace microcode {
             this.numberOfReadings += 1
             const range: number = Math.abs(this.getMinimum()) + this.getMaximum();
             this.dataBuffer.push(reading);
-            this.heightNormalisedDataBuffer.push(Math.round(this.screenHeight - (this.screenHeight * ((reading - this.getMinimum()) / range))));
+            this.heightNormalisedDataBuffer.push(Math.round(this.screenHeight - (this.screenHeight * ((reading - this.getMinimum()) / range))) + fromY);
         }
 
         /**
@@ -104,7 +104,7 @@ namespace microcode {
 
             this.heightNormalisedDataBuffer = []
             for (let i = 0; i < this.dataBuffer.length; i++) {
-                this.heightNormalisedDataBuffer.push(Math.round(this.screenHeight - ((this.dataBuffer[i] - min) / range) * this.screenHeight) - fromY);
+                this.heightNormalisedDataBuffer.push(Math.round(this.screenHeight - ((this.dataBuffer[i] - min) / range) * this.screenHeight) + fromY);
             }
         }
 
@@ -119,10 +119,10 @@ namespace microcode {
             for (let i = 0; i < this.heightNormalisedDataBuffer.length - 1; i++) {
                 for (let j = -(PLOT_SMOOTHING_CONSTANT / 2); j < PLOT_SMOOTHING_CONSTANT / 2; j++) {
                     screen().drawLine(
+                        fromX + i - 1,
+                        this.heightNormalisedDataBuffer[i] + j ,//+ (screen().height / 2),
                         fromX + i,
-                        this.heightNormalisedDataBuffer[i] + j,
-                        fromX + i + 1,
-                        this.heightNormalisedDataBuffer[i + 1] + j,
+                        this.heightNormalisedDataBuffer[i + 1] + j ,//+ (screen().height / 2),
                         color
                     );
                 }

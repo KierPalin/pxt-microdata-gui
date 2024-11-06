@@ -5,7 +5,7 @@ const calc = (arg0: microcode.GraphableFunction) => {
 }
 
 let y = 0;
-input.onButtonPressed(Button.A, function() {
+input.onButtonPressed(Button.A, function () {
     y = Math.min(y + 10, 100)
 })
 const gf = new microcode.GraphableFunction((x) => y)
@@ -38,10 +38,10 @@ const w = new microcode.Window({
             colour: 5
         }),
         new microcode.GUIGraph({
-            alignment: microcode.GUIComponentAlignment.TOP_LEFT,
+            alignment: microcode.GUIComponentAlignment.BOT_RIGHT,
             graphableFns: [gf],
             xOffset: 0,
-            yOffset: 0,
+            yOffset: 5,
             xScaling: 1,
             yScaling: 1,
             colour: 6
