@@ -75,10 +75,13 @@ namespace microcode {
 
         getAlignment(): number { return this.alignment }
         isHidden(): boolean { return this.hidden }
+
+
         printCenter(text: string, y: number) {
+            const textOffset = (font.charWidth * (text.length) + 1)
             screen().print(
                 text,
-                this.xOffset + (this.unscaledComponentWidth * this.scaling),
+                (this.xOffset + textOffset + (this.unscaledComponentWidth * this.scaling) / 2),
                 y
             )
         }
@@ -150,10 +153,11 @@ namespace microcode {
     }
 
     export class B extends GUIComponentAbstract {
-        navigator: INavigator
-        private btns: Button[];
         public cursor: Cursor
         public picker: Picker
+        public navigator: INavigator
+        private btns: Button[];
+        private title: string;
 
         constructor(opts: {
             alignment: GUIComponentAlignment,
@@ -162,10 +166,12 @@ namespace microcode {
             xOffset?: number,
             yOffset?: number,
             scaling?: number,
-            colour?: number
+            colour?: number,
+            title?: string,
         }) {
             super(opts)
             this.btns = [];
+            this.title = (opts.title != null) ? opts.title : ""
         }
 
         /* override */ startup() {
@@ -244,10 +250,10 @@ namespace microcode {
                 0xc
             )
 
+            this.printCenter(this.title, 2)
+
             this.picker.draw()
             this.cursor.draw()
-
-            screen().printCenter("Sensor Selection", 2)
 
             for (let i = 0; i < this.btns.length; i++)
                 this.btns[i].draw()
