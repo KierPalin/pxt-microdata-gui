@@ -36,6 +36,9 @@ namespace microcode {
         private yOffset: number;
         private unscaledComponentWidth: number;
         private unscaledComponentHeight: number;
+        private hasBorder: boolean
+
+        public nav: INavigator;
 
         constructor(opts: {
             alignment: GUIComponentAlignment,
@@ -44,7 +47,8 @@ namespace microcode {
             xOffset?: number,
             yOffset?: number,
             scaling?: number,
-            colour?: number
+            colour?: number,
+            border?: boolean
         }) {
             super()
 
@@ -57,6 +61,7 @@ namespace microcode {
             this.yOffset = (opts.yOffset != null) ? opts.yOffset : 0
             this.unscaledComponentWidth = opts.width
             this.unscaledComponentHeight = opts.height
+            this.hasBorder = (opts.border != null) ? opts.border : false
 
             const pos = this.getLeftAndTop()
             const left = pos[0];
@@ -148,7 +153,15 @@ namespace microcode {
         }
 
         draw(): void {
-            // basic.showNumber(5)
+            screen().fillRect(
+                this.bounds.left + (screen().width / 2),
+                this.bounds.top + (screen().height / 2) + 2,
+                this.bounds.width + 2,
+                this.bounds.height,
+                15
+            )
+
+            this.bounds.fillRect(this.backgroundColour)
         }
     }
 
@@ -268,8 +281,8 @@ namespace microcode {
             // this.picker.draw()
             // this.cursor.draw()
 
-            for (let i = 0; i < this.btns.length; i++)
-                this.btns[i].draw()
+            // for (let i = 0; i < this.btns.length; i++)
+            //     this.btns[i].draw()
 
             super.draw()
         }
@@ -350,12 +363,15 @@ namespace microcode {
         static DEFAULT_WIDTH: number = screen().width / 2;
         static DEFAULT_HEIGHT: number = screen().height / 2;
 
+        private btns: Button[]
+
         constructor(opts: {
             alignment: GUIComponentAlignment,
             xOffset?: number,
             yOffset?: number,
             scaling?: number,
-            colour?: number
+            colour?: number,
+            border?: boolean
         }) {
             super({
                 alignment: opts.alignment,
@@ -364,12 +380,27 @@ namespace microcode {
                 width: GUITestComponent.DEFAULT_WIDTH,
                 height: GUITestComponent.DEFAULT_HEIGHT,
                 scaling: opts.scaling,
-                colour: opts.colour
+                colour: opts.colour,
+                border: opts.border
             })
+
+            this.btns = [
+                new microcode.Button({
+                    icon: "",
+                    x: -(10 * ((opts.xOffset != null) ? opts.xOffset : 1)),
+                    y: -30
+                })
+            ]
+
+            this.nav = new microcode.GridNavigator(3, 4)
+            this.nav.addButtons(this.btns)
         }
 
         draw() {
-            this.bounds.fillRect(this.backgroundColour)
+            super.draw()
+            // this.bounds.fillRect(this.backgroundColour)
+
+            // this.btns.forEach(btn => btn.draw())
         }
     }
 
@@ -723,7 +754,7 @@ namespace microcode {
             components?: GUIComponentAbstract[],
             hideByDefault?: boolean
         }) {
-            super(app, "window")
+            super(app)
 
             if (opts.colour != null)
                 this.backgroundColor = opts.colour
@@ -733,6 +764,10 @@ namespace microcode {
 
             if (this.components != null && opts.hideByDefault)
                 this.focus(this.currentComponentID)
+        }
+
+        /* override */ startup() {
+            super.startup()
         }
 
         focus(componentID: number, hideOthers: boolean = true) {
@@ -747,9 +782,6 @@ namespace microcode {
             this.components.forEach(component => component.unHide())
         }
 
-        startup() {
-            super.startup()
-        }
 
         draw() {
             super.draw()
@@ -766,6 +798,8 @@ namespace microcode {
                 if (!component.isHidden())
                     component.draw()
             })
+
+            // this.cursor.draw()
         }
     }
 }
