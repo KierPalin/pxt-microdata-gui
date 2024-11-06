@@ -21,7 +21,7 @@ namespace microcode {
             this.color_ = v
         }
 
-        constructor(public app: App, public name: string) {
+        constructor(public app?: App, public name?: string) {
             this.xfrm_ = new Affine()
             this.color_ = 12
         }
