@@ -499,7 +499,7 @@ namespace microcode {
 
             screen().fillRect(
                 this.bounds.left + (this.bounds.width / 2) - 3 + (screen().width / 2),
-                40,
+                this.bounds.top + (screen().height / 2),
                 6,
                 this.bounds.height - 4,
                 15

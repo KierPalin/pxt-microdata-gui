@@ -9,7 +9,6 @@ const calc = (arg0: microcode.GraphableFunction) => {
 }
 
 const gf = new microcode.GraphableFunction((x) => y)
-
 const w = new microcode.Window({
     app,
     components: [
