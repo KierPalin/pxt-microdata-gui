@@ -22,7 +22,7 @@ namespace microcode {
      * Greatly simplifies the creation & alignment of GUI components.
      * A GUI Component has a .context for storage of hidden component state.
      */
-    abstract class GUIComponentAbstract {
+    abstract class GUIComponentAbstract extends Scene {
         private hidden: boolean;
         private context: any[];
         private alignment: GUIComponentAlignment
@@ -39,20 +39,22 @@ namespace microcode {
 
         constructor(opts: {
             alignment: GUIComponentAlignment,
-            xOffset: number,
-            yOffset: number,
             width: number,
             height: number,
+            xOffset?: number,
+            yOffset?: number,
             scaling?: number,
             colour?: number
         }) {
+            super()
+
             this.alignment = opts.alignment
 
             this.scaling = (opts.scaling) ? opts.scaling : this.scaling
             this.backgroundColour = (opts.colour) ? opts.colour : this.backgroundColour
 
-            this.xOffset = opts.xOffset
-            this.yOffset = opts.yOffset
+            this.xOffset = (opts.xOffset != null) ? opts.xOffset : 0
+            this.yOffset = (opts.yOffset != null) ? opts.yOffset : 0
             this.unscaledComponentWidth = opts.width
             this.unscaledComponentHeight = opts.height
 
@@ -73,9 +75,6 @@ namespace microcode {
 
         getAlignment(): number { return this.alignment }
         isHidden(): boolean { return this.hidden }
-
-
-        //
         printCenter(text: string, y: number) {
             screen().print(
                 text,
@@ -150,6 +149,184 @@ namespace microcode {
         }
     }
 
+    export class B extends GUIComponentAbstract {
+        navigator: INavigator
+        private btns: Button[];
+        public cursor: Cursor
+        public picker: Picker
+
+        constructor(opts: {
+            alignment: GUIComponentAlignment,
+            width: number,
+            height: number,
+            xOffset?: number,
+            yOffset?: number,
+            scaling?: number,
+            colour?: number
+        }) {
+            super(opts)
+            this.btns = [];
+        }
+
+        /* override */ startup() {
+            super.startup()
+
+            let x = (screen().width / 5) - (screen().width / 2);
+            let y = -30;
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 4; j++) {
+                    this.btns.push(new Button({
+                        parent: null,
+                        style: ButtonStyles.Transparent,
+                        icon: "" + ((i * 4) + j + 1),
+                        x,
+                        y,
+                        onClick: (button: Button) => { }
+                    }))
+                    x += screen().width / 5
+                }
+                y += screen().height / 4
+                x = (screen().width / 5) - (screen().width / 2);
+            }
+
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.right.id,
+                () => this.moveCursor(CursorDir.Right)
+            )
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.up.id,
+                () => this.moveCursor(CursorDir.Up)
+            )
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.down.id,
+                () => this.moveCursor(CursorDir.Down)
+            )
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.left.id,
+                () => this.moveCursor(CursorDir.Left)
+            )
+
+            // click
+            const click = () => this.cursor.click()
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.A.id,
+                click
+            )
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.A.id + keymap.PLAYER_OFFSET,
+                click
+            )
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.B.id,
+                () => this.back()
+            )
+
+            this.cursor = new Cursor()
+            this.picker = new Picker(this.cursor)
+            this.navigator = new microcode.GridNavigator(3, 4)
+            this.cursor.navigator = this.navigator
+            this.navigator.addButtons(this.btns)
+        }
+
+        draw() {
+            Screen.fillRect(
+                Screen.LEFT_EDGE,
+                Screen.TOP_EDGE,
+                Screen.WIDTH,
+                Screen.HEIGHT,
+                0xc
+            )
+
+            this.picker.draw()
+            this.cursor.draw()
+
+            screen().printCenter("Sensor Selection", 2)
+
+            for (let i = 0; i < this.btns.length; i++)
+                this.btns[i].draw()
+
+            super.draw()
+        }
+
+        protected moveCursor(dir: CursorDir) {
+            try {
+                this.moveTo(this.cursor.move(dir))
+            } catch (e) {
+                if (dir === CursorDir.Up && e.kind === BACK_BUTTON_ERROR_KIND)
+                    this.back()
+                else if (
+                    dir === CursorDir.Down &&
+                    e.kind === FORWARD_BUTTON_ERROR_KIND
+                )
+                    return
+                else throw e
+            }
+        }
+
+        protected moveTo(target: Button) {
+            if (!target) return
+            this.cursor.moveTo(
+                target.xfrm.worldPos,
+                target.ariaId,
+                target.bounds
+            )
+        }
+
+        back() {
+            if (!this.cursor.cancel()) this.moveCursor(CursorDir.Back)
+        }
+
+        protected handleClick(x: number, y: number) {
+            const target = this.cursor.navigator.screenToButton(
+                x - Screen.HALF_WIDTH,
+                y - Screen.HALF_HEIGHT
+            )
+            if (target) {
+                this.moveTo(target)
+                target.click()
+            } else if (this.picker.visible) {
+                this.picker.hide()
+            }
+        }
+
+        protected handleMove(x: number, y: number) {
+            const btn = this.cursor.navigator.screenToButton(
+                x - Screen.HALF_WIDTH,
+                y - Screen.HALF_HEIGHT
+            )
+            if (btn) {
+                const w = btn.xfrm.worldPos
+                this.cursor.snapTo(w.x, w.y, btn.ariaId, btn.bounds)
+                btn.reportAria(true)
+            }
+        }
+
+        /* override */ shutdown() {
+            this.navigator.clear()
+        }
+
+        /* override */ activate() {
+            super.activate()
+            const btn = this.navigator.initialCursor(0, 0)
+            if (btn) {
+                const w = btn.xfrm.worldPos
+                this.cursor.snapTo(w.x, w.y, btn.ariaId, btn.bounds)
+                btn.reportAria(true)
+            }
+        }
+
+        /* override */ update() {
+            this.cursor.update()
+        }
+    }
+
     export class GUITestComponent extends GUIComponentAbstract {
         static DEFAULT_WIDTH: number = screen().width / 2;
         static DEFAULT_HEIGHT: number = screen().height / 2;
@@ -163,8 +340,8 @@ namespace microcode {
         }) {
             super({
                 alignment: opts.alignment,
-                xOffset: opts.xOffset,
-                yOffset: opts.yOffset,
+                xOffset: (opts.xOffset != null) ? opts.xOffset : 0,
+                yOffset: (opts.yOffset != null) ? opts.yOffset : 0,
                 width: GUITestComponent.DEFAULT_WIDTH,
                 height: GUITestComponent.DEFAULT_HEIGHT,
                 scaling: opts.scaling,
@@ -203,7 +380,6 @@ namespace microcode {
             })
 
             this.navigator = opts.navigator
-
 
             control.onEvent(
                 ControllerButtonEvent.Pressed,
@@ -333,12 +509,12 @@ namespace microcode {
     const KEYBOARD_MAX_TEXT_LENGTH = 20;
 
     export class KeyboardComponent extends GUISceneAbstract {
-        private static DEFAULT_WIDTH: number = screen().width / 2;
-        private static DEFAULT_HEIGHT: number = screen().height / 2;
-        private static WIDTHS: number[] = [10, 10, 10, 10, 4];
-
-        private btns: Button[]  
+        private static DEFAULT_WIDTH: number = screen().width
+        private static DEFAULT_HEIGHT: number = 80
+        private static WIDTHS: number[] = [10, 10, 10, 10, 4]
+        private btns: Button[]
         private btnText: string[]
+
         private text: string;
         private upperCase: boolean;
         private next: (arg0: string) => void;
@@ -451,6 +627,8 @@ namespace microcode {
 
             this.changeCase()
             this.navigator.addButtons(this.btns)
+
+            basic.showString("Ye")
         }
 
         private changeCase() {
@@ -558,6 +736,14 @@ namespace microcode {
 
         draw() {
             super.draw()
+
+            screen().fillRect(
+                0,
+                0,
+                screen().width,
+                screen().height,
+                this.backgroundColor
+            )
 
             this.components.forEach(component => {
                 if (!component.isHidden())
