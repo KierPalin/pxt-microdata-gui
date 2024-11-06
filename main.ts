@@ -19,7 +19,7 @@ const w = new microcode.Window({
             alignment: microcode.GUIComponentAlignment.RIGHT,
             xOffset: 3,
             yOffset: 0,
-            scaling: 1,
+            scaling: 0.3,
             colour: 5
         }),
         new microcode.GUITestComponent({
@@ -39,17 +39,34 @@ const w = new microcode.Window({
     ],
     colour: 9
 });
-// app.pushScene(w)
+app.pushScene(w)
 
-app.pushScene(
-    new microcode.B({
-        alignment: microcode.GUIComponentAlignment.BOT,
-        xOffset: 0,
-        yOffset: 0,
-        width: 50,
-        height: 50,
-        scaling: 0.6,
-        colour: 7,
-        title: "example"
-    })
-)
+// app.pushScene(
+//     new microcode.B({
+//         alignment: microcode.GUIComponentAlignment.BOT,
+//         xOffset: 0,
+//         yOffset: 0,
+//         width: 50,
+//         height: 50,
+//         scaling: 0.6,
+//         colour: 7,
+//         title: "example"
+//     })
+// )
+
+// app.pushScene(new microcode.Window({
+//     app,
+//     components: [
+//         new microcode.B({
+//             alignment: microcode.GUIComponentAlignment.BOT,
+//             xOffset: 0,
+//             yOffset: 0,
+//             width: 50,
+//             height: 50,
+//             scaling: 0.6,
+//             colour: 7,
+//             title: "example"
+//         })
+//     ],
+//     colour: 9
+// }))

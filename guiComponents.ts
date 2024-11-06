@@ -148,9 +148,10 @@ namespace microcode {
         }
 
         draw(): void {
-
+            // basic.showNumber(5)
         }
     }
+
 
     export class B extends GUIComponentAbstract {
         public cursor: Cursor
@@ -170,8 +171,12 @@ namespace microcode {
             title?: string,
         }) {
             super(opts)
+
             this.btns = [];
             this.title = (opts.title != null) ? opts.title : ""
+            this.navigator = new microcode.GridNavigator(3, 4)
+
+            this.startup()
         }
 
         /* override */ startup() {
@@ -234,11 +239,15 @@ namespace microcode {
                 () => this.back()
             )
 
-            this.cursor = new Cursor()
-            this.picker = new Picker(this.cursor)
-            this.navigator = new microcode.GridNavigator(3, 4)
             this.cursor.navigator = this.navigator
             this.navigator.addButtons(this.btns)
+
+            this.cursor = new Cursor()
+            this.picker = new Picker(this.cursor)
+
+            if (this.navigator == null)
+                this.navigator = new RowNavigator()
+            this.cursor.navigator = this.navigator
         }
 
         draw() {
@@ -252,8 +261,12 @@ namespace microcode {
 
             this.printCenter(this.title, 2)
 
-            this.picker.draw()
-            this.cursor.draw()
+            // if (this.picker == null || this.cursor == null) {
+            //     basic.showString("Y")
+            // }
+
+            // this.picker.draw()
+            // this.cursor.draw()
 
             for (let i = 0; i < this.btns.length; i++)
                 this.btns[i].draw()
@@ -633,8 +646,6 @@ namespace microcode {
 
             this.changeCase()
             this.navigator.addButtons(this.btns)
-
-            basic.showString("Ye")
         }
 
         private changeCase() {
