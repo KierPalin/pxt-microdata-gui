@@ -74,7 +74,8 @@ namespace microcode {
          * @param fromY the offset by which the reading should be raised before adding to this.normalisedBuffer
          * @returns 
          */
-        readIntoBufferOnce(fromY: number): void {
+        readIntoBufferOnce(fromY: number, height: number): void {
+            this.screenHeight = height
             const reading = this.getValueAt(this.numberOfReadings)
 
             if (this.dataBuffer.length >= this.maxBufferSize || reading === undefined) {
@@ -88,7 +89,7 @@ namespace microcode {
             this.numberOfReadings += 1
             const range: number = Math.abs(this.getMinimum()) + this.getMaximum();
             this.dataBuffer.push(reading);
-            this.heightNormalisedDataBuffer.push(Math.round(Screen.HEIGHT - ((reading - this.getMinimum()) / range) * (BUFFERED_SCREEN_HEIGHT - fromY)) - fromY);
+            this.heightNormalisedDataBuffer.push(Math.round(this.screenHeight - (this.screenHeight * ((reading - this.getMinimum()) / range))));
         }
 
         /**

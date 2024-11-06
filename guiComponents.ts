@@ -496,7 +496,7 @@ namespace microcode {
 
             for (let i = 0; i < this.graphableFns.length; i++) {
                 const hasSpace = this.graphableFns[i].getBufferLength() < this.graphableFns[i].getMaxBufferSize()
-                this.graphableFns[i].readIntoBufferOnce((screen().height / 2) + top) // 8
+                this.graphableFns[i].readIntoBufferOnce((screen().height / 2) + top, this.bounds.height) // 8
             }
 
             //----------------------------
@@ -516,17 +516,14 @@ namespace microcode {
                 if (sensor.getHeightNormalisedBufferLength() > 0) {
                     const reading = sensor.getReading()
                     const range = Math.abs(sensor.getMinimum()) + sensor.getMaximum()
-                    // const y = Math.round(this.bounds.height - ((((reading - sensor.getMinimum()) / range) * (this.bounds.height))))
-                    // (screen().height / 2)
                     const y = Math.round(this.bounds.height - (this.bounds.height * ((reading - sensor.getMinimum()) / range)))
 
                     // Make sure the ticker won't be cut-off by other UI elements
                     // if (y > sensor.getMinimum() + 5) {
                         screen().print(
                             sensor.getNthReading(sensor.getBufferLength() - 1).toString().slice(0, 5),
-                            this.bounds.width - (4 * font.charWidth),
-                            // y - (screen().height / 2),
-                            y + (screen().height / 2),
+                            this.bounds.left + this.bounds.width + (screen().width / 2) - 4,
+                            (screen().height / 2) - y + this.bounds.height - 7,
                             color,
                             bitmaps.font5,
                         )

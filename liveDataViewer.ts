@@ -318,7 +318,7 @@ namespace microcode {
                     if (this.drawSensorStates[i]) {
                         const hasSpace = this.graphableFns[i].getBufferLength() < this.graphableFns[i].getMaxBufferSize()
                         if ((this.guiState != GUI_STATE.ZOOMED_IN) || (this.guiState == GUI_STATE.ZOOMED_IN && hasSpace))
-                            this.graphableFns[i].readIntoBufferOnce(this.windowBotBuffer - (2 * this.yScrollOffset) + (Screen.HEIGHT * 0.0625)) // 8
+                            this.graphableFns[i].readIntoBufferOnce(this.windowBotBuffer - (2 * this.yScrollOffset) + (Screen.HEIGHT * 0.0625), Screen.HEIGHT) // 8
                     }
                         
                 }
