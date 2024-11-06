@@ -27,7 +27,7 @@ namespace microcode {
         public static DEFAULT_HEIGHT: number = screen().height / 2;
 
         private hidden: boolean;
-        private context: any[];
+        protected context: any[];
         private alignment: GUIComponentAlignment
 
         protected bounds: Bounds;
@@ -431,8 +431,10 @@ namespace microcode {
         }
     }
 
-
     export class GUISlider extends GUIBox {
+        private maximum: number;
+        private minimum: number;
+
         constructor(opts: {
             alignment: GUIComponentAlignment,
             xOffset?: number,
@@ -441,7 +443,9 @@ namespace microcode {
             yScaling?: number,
             colour?: number,
             border?: boolean,
-            title?: string
+            title?: string,
+            sliderMax?: number,
+            sliderMin?: number
         }) {
             super({
                 alignment: opts.alignment,
@@ -452,6 +456,54 @@ namespace microcode {
                 colour: opts.colour,
                 border: opts.border
             })
+
+            this.maximum = (opts.sliderMax != null) ? opts.sliderMax : 100
+            this.minimum = (opts.sliderMin != null) ? opts.sliderMin : 0
+
+            this.context = [this.maximum - this.minimum]
+
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.up.id,
+                () => this.context[0] = Math.min(this.context[0] + 10, this.maximum)
+            )
+
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.down.id,
+                () => this.context[0] = Math.max(this.context[0] - 10, this.minimum)
+            )
+        }
+
+        draw() {
+            super.draw()
+
+            // screen().fillRect(
+            //     // this.bounds.left + (this.bounds.width / 2) - (this.bounds.width / 10),
+            //     this.bounds.left + (this.bounds.width / 2) + (screen().width / 2) - 10,
+            //     this.bounds.top + this.bounds.height + (this.bounds.height * (this.getContext()[0] / this.maximum)),// + (screen().height / 2),
+            //     20,
+            //     10,
+            //     15
+            // )
+
+            screen().fillRect(
+                // this.bounds.left + (this.bounds.width / 2) - (this.bounds.width / 10),
+                this.bounds.left + (this.bounds.width / 2) + (screen().width / 2) - 10,
+                // this.bounds.top - 10 + (this.bounds.height / (this.getContext()[0] / this.maximum)) + (screen().height / 2),
+                this.bounds.top + (this.bounds.height * (this.maximum / this.getContext()[0])) + 15,
+                20,
+                10,
+                15
+            )
+
+            screen().fillRect(
+                this.bounds.left + (this.bounds.width / 2) - 3 + (screen().width / 2),
+                40,
+                6,
+                this.bounds.height - 4,
+                15
+            )
         }
     }
 
