@@ -57,30 +57,51 @@ const app = new microcode.App();
 
 namespace microcode {
     export class W extends Scene {
-        private comp: C[]
+        private btnCollections: ButtonCollection[]
         private i: number
 
         constructor(app: App) {
             super(app)
 
-            this.comp = [
-                new C([new Button({ icon: "accelerometer", ariaId: "", x: 40, y: 0 })]),
-                new C([new Button({ icon: "thermometer", ariaId: "", x: -40, y: 0 })])
+            this.btnCollections = [
+                // new C([new Button({ icon: "accelerometer", ariaId: "", x: 40, y: 0 })]),
+                // new C([new Button({ icon: "thermometer", ariaId: "", x: -40, y: 0 })])
+                new ButtonCollection({
+                    btns: [
+                        [new Button({ icon: "accelerometer", ariaId: "", x: 40, y: 0, onClick: () => basic.showNumber(0)})],
+                        [new Button({ icon: "accelerometer", ariaId: "", x: 40, y: 20, onClick: () => basic.showNumber(1)})]
+                    ],
+                }),
+                new ButtonCollection({
+                    btns: [
+                        [new Button({ icon: "thermometer", ariaId: "", x: -40, y: 0, onClick: () => basic.showNumber(2)})],
+                        [new Button({ icon: "thermometer", ariaId: "", x: -40, y: 20, onClick: () => basic.showNumber(3)})]
+                    ],
+                    isHidden: true
+                }),
             ]
             this.i = 0
 
             input.onButtonPressed(1, function () {
-                this.i = (this.i + 1) % 2
-
+                this.toggleActiveBtnComponent()
             })
 
             // this.navigator.addButtons(this.comp[this.i].btns)
         }
 
+        toggleActiveBtnComponent() {
+            this.i = (this.i + 1) % 2
+
+            this.btnCollections.forEach(btnC => btnC.hide())
+            this.btnCollections[this.i].unHide()
+        }
+
         draw() {
             screen().fill(12)
 
-            this.comp[this.i].draw()
+            // this.comp[this.i].draw()
+
+            this.btnCollections.forEach(btnC => btnC.draw())
 
             super.draw()
         }
@@ -98,7 +119,7 @@ namespace microcode {
         private cursorRow: number;
         private cursorCol: number;
 
-        constructor(opts: { btns: Button[][], isHidden: boolean, cursorColour: number }) {
+        constructor(opts: { btns: Button[][], isHidden?: boolean, cursorColour?: number }) {
             this.btns = opts.btns;
             this.isHidden = (opts.isHidden != null) ? opts.isHidden : false;
 
@@ -132,7 +153,7 @@ namespace microcode {
                 () => {
                     this.cursorRow = (((this.cursorRow - 1) % this.height) + this.height) % this.height; // Non-negative modulo
 
-                    // Row above could have less cols, adjust if neccessary:
+                    // Row above might have less cols, adjust if neccessary:
                     if (this.widths[this.cursorRow] <= this.cursorCol)
                         this.cursorCol = this.widths[this.cursorRow] - 1
                     this.updateCursor()
@@ -145,7 +166,7 @@ namespace microcode {
                 () => {
                     this.cursorRow = (this.cursorRow + 1) % this.height;
 
-                    // Row below could have less cols, adjust if neccessary:
+                    // Row below might have less cols, adjust if neccessary:
                     if (this.widths[this.cursorRow] <= this.cursorCol)
                         this.cursorCol = this.widths[this.cursorRow] - 1
                     this.updateCursor()
@@ -183,6 +204,15 @@ namespace microcode {
             )
         }
 
+
+        hide() {
+            this.isHidden = true;
+        }
+
+        unHide() {
+            this.isHidden = false;
+        }
+
         click() {
             this.btns[this.cursorRow][this.cursorCol].onClick(this.btns[this.cursorRow][this.cursorCol])
         }
@@ -190,7 +220,6 @@ namespace microcode {
         back() {
 
         }
-
 
         updateCursor() {
             this.cursorBounds = this.btns[this.cursorRow][this.cursorCol].bounds;
@@ -210,17 +239,17 @@ namespace microcode {
         }
     }
 
-    class C {
-        public btns: Button[]
+    // class C {
+    //     public btns: Button[]
 
-        constructor(btns: Button[]) {
-            this.btns = btns
-        }
+    //     constructor(btns: Button[]) {
+    //         this.btns = btns
+    //     }
 
-        draw() {
-            this.btns.forEach(btn => btn.draw())
-        }
-    }
+    //     draw() {
+    //         this.btns.forEach(btn => btn.draw())
+    //     }
+    // }
 }
 
 app.pushScene(new microcode.W(app))
