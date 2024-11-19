@@ -56,39 +56,25 @@
 const app = new microcode.App();
 
 namespace microcode {
-    export class W extends CursorScene {
+    export class W extends Scene {
         private comp: C[]
         private i: number
 
         constructor(app: App) {
             super(app)
 
-            this.navigator = new microcode.GridNavigator(1, 1)
-
             this.comp = [
                 new C([new Button({ icon: "accelerometer", ariaId: "", x: 40, y: 0 })]),
                 new C([new Button({ icon: "thermometer", ariaId: "", x: -40, y: 0 })])
             ]
+            this.i = 0
 
             input.onButtonPressed(1, function () {
                 this.i = (this.i + 1) % 2
 
-                this.cursor = new microcode.Cursor()
-                this.navigator = new microcode.GridNavigator(1, 1)
-                this.cursor.navigator = this.navigator
-
-                this.picker = new microcode.Picker(this.cursor)
-
-                this.navigator.addButtons(this.comp[this.i].btns)
-
-
-                basic.showNumber(3)
-                basic.pause(1000)
             })
 
-            this.i = 0
-
-            this.navigator.addButtons(this.comp[this.i].btns)
+            // this.navigator.addButtons(this.comp[this.i].btns)
         }
 
         draw() {
