@@ -13,7 +13,10 @@
 //     components: [
 //         new microcode.GUIBox({
 //             alignment: microcode.GUIComponentAlignment.TOP,
-//             xOffset: 10,
+//             xOffset: 0,
+//             yOffset: 0,
+//             xScaling: 0.5,
+//             yScaling: 0.3,
 //             title: "Hello"
 //         }),
 //         // new microcode.GUIBox({
@@ -22,21 +25,21 @@
 //         //     yScaling: 0.8,
 //         //     colour: 4
 //         // }),
-//         // new microcode.GUISlider({
-//         //     alignment: microcode.GUIComponentAlignment.LEFT,
-//         //     xScaling: 0.8,
-//         //     yScaling: 0.8,
-//         //     colour: 4
-//         // }),
-//         // new microcode.GUIGraph({
-//         //     alignment: microcode.GUIComponentAlignment.RIGHT,
-//         //     graphableFns: [gf],
-//         //     xOffset: -5,
-//         //     yOffset: 0,
-//         //     xScaling: 1,
-//         //     yScaling: 1,
-//         //     colour: 6
-//         // }),
+//         new microcode.GUISlider({
+//             alignment: microcode.GUIComponentAlignment.LEFT,
+//             xScaling: 0.8,
+//             yScaling: 0.8,
+//             colour: 4
+//         }),
+//         new microcode.GUIGraph({
+//             alignment: microcode.GUIComponentAlignment.RIGHT,
+//             graphableFns: [gf],
+//             xOffset: -5,
+//             yOffset: 0,
+//             xScaling: 1,
+//             yScaling: 1,
+//             colour: 6
+//         }),
 //         // new microcode.GUIBox({
 //         //     alignment: microcode.GUIComponentAlignment.BOT,
 //         //     xOffset: 0,
@@ -49,105 +52,65 @@
 // });
 // app.pushScene(w)
 
+
 const app = new microcode.App();
 
-class A {
-    public buttons: microcode.Button[]
-    private bounds: microcode.Bounds
-    private colour: number;
+namespace microcode {
+    export class W extends CursorScene {
+        private comp: C[]
+        private i: number
 
-    constructor(bounds: microcode.Bounds, colour: number, buttons: microcode.Button[]) {
-        this.bounds = bounds
-        this.colour = colour
-        this.buttons = buttons
+        constructor(app: App) {
+            super(app)
+
+            this.navigator = new microcode.GridNavigator(1, 1)
+
+            this.comp = [
+                new C([new Button({ icon: "accelerometer", ariaId: "", x: 40, y: 0 })]),
+                new C([new Button({ icon: "thermometer", ariaId: "", x: -40, y: 0 })])
+            ]
+
+            input.onButtonPressed(1, function () {
+                this.i = (this.i + 1) % 2
+
+                this.cursor = new microcode.Cursor()
+                this.navigator = new microcode.GridNavigator(1, 1)
+                this.cursor.navigator = this.navigator
+
+                this.picker = new microcode.Picker(this.cursor)
+
+                this.navigator.addButtons(this.comp[this.i].btns)
+
+
+                basic.showNumber(3)
+                basic.pause(1000)
+            })
+
+            this.i = 0
+
+            this.navigator.addButtons(this.comp[this.i].btns)
+        }
+
+        draw() {
+            screen().fill(12)
+
+            this.comp[this.i].draw()
+
+            super.draw()
+        }
     }
 
-    draw() {
-        this.bounds.fillRect(this.colour)
-    }
-}
+    class C {
+        public btns: Button[]
 
+        constructor(btns: Button[]) {
+            this.btns = btns
+        }
 
-class B extends microcode.CursorScene {
-    private components: A[]
-    private componentIndex: number
-
-    constructor(app: microcode.App) {
-        super(app, new microcode.GridNavigator(1, 1))
-        this.components = []
-        this.componentIndex = 0
-    }
-
-    startup() {
-        super.startup()
-
-        input.onButtonPressed(Button.B, function () {
-            this.componentIndex = (this.componentIndex + 1) % 2
-            basic.showString("Y")
-            // this.navigator.clear()
-            // this.navigator = new microcode.GridNavigator(1, 1)
-            this.cursor
-            basic.showString("M")
-            this.navigator.addButtons(this.components[this.componentIndex].buttons)
-            basic.showString("D")
-        })
-
-        this.components.push(
-            new A(
-                new microcode.Bounds({
-                    width: screen().width / 2,
-                    height: screen().height / 2,
-                    left: 0,
-                    top: 0
-                }),
-                6,
-                [
-                    new microcode.Button({
-                        icon: "hi",
-                        x: -30,
-                        y: -30
-                    })
-                ]
-            )
-        )
-        this.components.push(
-            new A(
-                new microcode.Bounds({
-                    width: screen().width / 2,
-                    height: screen().height / 2,
-                    left: -screen().width / 2,
-                    top: -screen().height / 2
-                }),
-                5,
-                [
-                    new microcode.Button({
-                        icon: "yo",
-                        x: -30,
-                        y: 0
-                    })
-                ]
-            )
-        )
-
-        // new microcode.Button({
-        //     icon: "wow",
-        //     x: -30,
-        //     y: -30
-        // })
-
-        this.navigator.addButtons(
-            this.components[this.componentIndex].buttons
-        )
-    }
-
-    draw() {
-        screen().fill(12)
-
-        this.components.forEach(comp => comp.draw())
-
-        super.draw()
+        draw() {
+            this.btns.forEach(btn => btn.draw())
+        }
     }
 }
 
-
-app.pushScene(new B(app))
+app.pushScene(new microcode.W(app))
