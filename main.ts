@@ -82,7 +82,7 @@ namespace microcode {
                     isHidden: false
                 }),
             ]
-            this.i = 1
+            this.i = 0
 
             input.onButtonPressed(1, function () {
                 this.toggleActiveBtnComponent()
@@ -94,9 +94,9 @@ namespace microcode {
         toggleActiveBtnComponent() {
             this.i = (this.i + 1) % 2
 
-            this.btnCollections.forEach(btnC => btnC.hide())
+            this.btnCollections.forEach(btnC => {btnC.hide(); btnC.unmakeActive()})
             this.btnCollections[this.i].unHide()
-            this.btnCollections[this.i].bindShieldButtons()
+            this.btnCollections[this.i].makeActive()
         }
 
         draw() {
@@ -216,6 +216,26 @@ namespace microcode {
             )
         }
 
+        unbindShieldButtons() {
+            control.onEvent(ControllerButtonEvent.Pressed, controller.A.id, () => { })
+            control.onEvent(ControllerButtonEvent.Pressed, controller.A.id + keymap.PLAYER_OFFSET, () => { })
+            control.onEvent(ControllerButtonEvent.Pressed, controller.B.id, () => {})
+            control.onEvent(ControllerButtonEvent.Pressed, controller.up.id, () => {})
+            control.onEvent(ControllerButtonEvent.Pressed, controller.down.id, () => {})
+            control.onEvent(ControllerButtonEvent.Pressed, controller.left.id, () => {})
+            control.onEvent(ControllerButtonEvent.Pressed, controller.right.id, () => {})
+        }
+
+        makeActive() {
+            this.isActive = true
+            this.bindShieldButtons()
+        }
+
+        unmakeActive() {
+            this.isActive = false
+            this.bindShieldButtons()
+        }
+
         hide() {
             this.isHidden = true;
         }
@@ -233,11 +253,13 @@ namespace microcode {
         }
 
         updateCursor() {
+            const x = this.cursorRow
+            const y = this.cursorCol
             this.cursorBounds = new Bounds({
-                width: this.btns[0][0].width + 4,
-                height: this.btns[0][0].height + 4,
-                left: this.btns[0][0].xfrm.localPos.x - (this.btns[0][0].width / 2) - 2,
-                top: this.btns[0][0].xfrm.localPos.y - (this.btns[0][0].height / 2) - 2
+                width: this.btns[x][y].width + 4,
+                height: this.btns[x][y].height + 4,
+                left: this.btns[x][y].xfrm.localPos.x - (this.btns[x][y].width / 2) - 2,
+                top: this.btns[x][y].xfrm.localPos.y - (this.btns[x][y].height / 2) - 2
             })
             this.drawCursor()
         }
