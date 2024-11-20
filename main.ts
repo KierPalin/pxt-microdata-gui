@@ -3,7 +3,7 @@ namespace microcode {
 
     const simpleBtnComponent = new ButtonCollection({
         alignment: GUIComponentAlignment.TOP,
-        btns: [[new Button({ icon: "accelerometer", onClick: () => basic.showNumber(0)})]],
+        btns: [[new Button({ icon: "accelerometer", onClick: () => basic.showNumber(0) })]],
         isActive: true,
     })
 
@@ -16,12 +16,14 @@ namespace microcode {
         ],
         isActive: true,
     })
+    
+    const comp2BtnBehaviour = () => {Window.makeComponentActive(0)}
 
     const comp2 = new ButtonCollection({
         alignment: GUIComponentAlignment.LEFT,
         btns: [
-            [new Button({ icon: "thermometer", ariaId: "", x: 10, y: 0, onClick: () => basic.showNumber(2) })],
-            [new Button({ icon: "thermometer", ariaId: "", x: 10, y: 20, onClick: () => basic.showNumber(3) })]
+            [new Button({ icon: "thermometer", ariaId: "", x: 10, y: 0, onClick: comp2BtnBehaviour})],
+            [new Button({ icon: "thermometer", ariaId: "", x: 10, y: 20, onClick: comp2BtnBehaviour})]
         ],
         isActive: false,
         isHidden: true,
@@ -42,7 +44,6 @@ namespace microcode {
 
     const window = new Window({ app, components: [comp1, comp2, comp3] })
     // const window = new Window({ app, components: [simpleBtnComponent] })
-
 
     app.pushScene(window)
 }

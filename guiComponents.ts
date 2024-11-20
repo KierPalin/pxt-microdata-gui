@@ -822,9 +822,9 @@ namespace microcode {
      * One component is active at a time
      */
     export class Window extends Scene {
-        private components: GUIComponentAbstract[];
-        private componentQty: number;
-        private currentComponentID: number;
+        private static components: GUIComponentAbstract[];
+        private static componentQty: number;
+        private static currentComponentID: number;
 
         constructor(opts: {
             app: App,
@@ -839,36 +839,39 @@ namespace microcode {
             if (opts.colour != null)
                 this.backgroundColor = opts.colour
 
-            this.components = opts.components
-            this.componentQty = this.components.length
-            this.currentComponentID = 0
+            Window.components = opts.components
+            Window.componentQty = Window.components.length
+            Window.currentComponentID = 0
 
-            if (this.components != null && opts.hideByDefault)
-                this.focus(this.currentComponentID, true)
+            if (Window.components != null && opts.hideByDefault)
+                Window.focus(true)
 
             input.onButtonPressed(1, function() {
-                this.currentComponentID = (this.currentComponentID + 1) % this.componentQty
-                this.focus(this.currentComponentID, true)
+                Window.currentComponentID = (Window.currentComponentID + 1) % Window.componentQty
+                Window.focus(true)
             })
+        }
+
+        public static makeComponentActive(componentID: number) {
+            Window.currentComponentID = componentID;
+            Window.focus(true);
         }
 
         /* override */ startup() {
             super.startup()
         }
 
-        focus(componentID: number, hideOthers: boolean) {
+        private static focus(hideOthers: boolean) {
             if (hideOthers)
-                this.components.forEach(component => {component.hide()})
-            this.components.forEach(component => {component.unmakeActive()})
+                Window.components.forEach(component => {component.hide()})
+            Window.components.forEach(component => {component.unmakeActive()})
 
-            this.components[componentID].unHide()
-            this.components[componentID].makeActive()
-
-            this.currentComponentID = componentID
+            Window.components[Window.currentComponentID].unHide()
+            Window.components[Window.currentComponentID].makeActive()
         }
 
         showAllComponents() {
-            this.components.forEach(component => component.unHide())
+            Window.components.forEach(component => component.unHide())
         }
 
         draw() {
@@ -882,8 +885,8 @@ namespace microcode {
                 this.backgroundColor
             )
 
-            if (this.components != null) {
-                this.components.forEach(component => {
+            if (Window.components != null) {
+                Window.components.forEach(component => {
                     if (!component.hidden)
                         component.draw()
                 })
