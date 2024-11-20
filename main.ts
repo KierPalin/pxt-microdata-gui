@@ -129,9 +129,10 @@ const comp2 = new microcode.ButtonCollection({
         [new microcode.Button({ icon: "thermometer", ariaId: "", x: -40, y: 20, onClick: () => basic.showNumber(3) })]
     ],
     isActive: false,
+    isHidden: true,
     colour: 7,
 })
-    
-const window = new microcode.Window({app, components: [comp1, comp2]})
+
+const window = new microcode.Window({ app, components: [comp1, comp2] })
 
 app.pushScene(window)

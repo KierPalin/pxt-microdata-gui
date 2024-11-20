@@ -25,14 +25,16 @@ namespace microcode {
     abstract class GUIComponentAbstract extends Scene {
         public static DEFAULT_WIDTH: number = screen().width / 2;
         public static DEFAULT_HEIGHT: number = screen().height / 2;
+        
+        protected isActive: boolean;
+        protected isHidden: boolean;
 
-        private hidden: boolean;
         protected context: any[];
-        private alignment: GUIComponentAlignment
 
         protected bounds: Bounds;
         protected backgroundColour: number = 3;
 
+        private alignment: GUIComponentAlignment
         private xScaling: number = 1.0;
         private yScaling: number = 1.0;
 
@@ -42,12 +44,12 @@ namespace microcode {
         private unscaledComponentHeight: number;
         private hasBorder: boolean
 
-        public nav: INavigator;
-
         constructor(opts: {
             alignment: GUIComponentAlignment,
             width: number,
             height: number,
+            isActive: boolean,
+            isHidden?: boolean,
             xOffset?: number,
             yOffset?: number,
             xScaling?: number,
@@ -57,7 +59,10 @@ namespace microcode {
         }) {
             super()
 
-            this.alignment = opts.alignment
+            this.alignment = opts.alignment;
+
+            this.isActive = opts.isActive
+            this.isHidden = (opts.isHidden != null) ? opts.isHidden : false
 
             this.xScaling = (opts.xScaling) ? opts.xScaling : this.xScaling
             this.yScaling = (opts.yScaling) ? opts.yScaling : this.yScaling
@@ -82,12 +87,16 @@ namespace microcode {
             })
         }
 
-        hide(): void { this.hidden = true }
-        unHide(): void { this.hidden = false }
+        public get active() { return this.isActive }
+        public get hidden() { return this.isHidden }
+
+        makeActive(): void { this.isActive = true }
+        unmakeActive(): void { this.isActive = false }
+
+        hide(): void { this.isHidden = true }
+        unHide(): void { this.isHidden = false }
 
         getAlignment(): number { return this.alignment }
-        isHidden(): boolean { return this.hidden }
-
 
         printCenter(text: string) {
             const textOffset = (font.charWidth * text.length) / 2
@@ -194,6 +203,8 @@ namespace microcode {
 
         constructor(opts: {
             alignment: GUIComponentAlignment,
+            isActive: boolean,
+            isHidden?: boolean,
             xOffset?: number,
             yOffset?: number,
             xScaling?: number,
@@ -206,6 +217,8 @@ namespace microcode {
                 alignment: opts.alignment,
                 xOffset: (opts.xOffset != null) ? opts.xOffset : 0,
                 yOffset: (opts.yOffset != null) ? opts.yOffset : 0,
+                isActive: opts.isActive,
+                isHidden: opts.isHidden,
                 width: TextBox.DEFAULT_WIDTH,
                 height: TextBox.DEFAULT_HEIGHT,
                 xScaling: opts.xScaling,
@@ -230,6 +243,8 @@ namespace microcode {
 
         constructor(opts: {
             alignment: GUIComponentAlignment,
+            isActive: boolean,
+            isHidden?: boolean,
             xOffset?: number,
             yOffset?: number,
             xScaling?: number,
@@ -242,6 +257,8 @@ namespace microcode {
         }) {
             super({
                 alignment: opts.alignment,
+                isActive: opts.isActive,
+                isHidden: opts.isHidden,
                 xOffset: (opts.xOffset != null) ? opts.xOffset : 0,
                 yOffset: (opts.yOffset != null) ? opts.yOffset : 0,
                 xScaling: opts.xScaling,
@@ -306,6 +323,8 @@ namespace microcode {
         constructor(opts: {
             alignment: GUIComponentAlignment,
             graphableFns: GraphableFunction[],
+            isActive: boolean,
+            isHidden: boolean,
             xOffset?: number,
             yOffset?: number,
             xScaling?: number,
@@ -316,6 +335,8 @@ namespace microcode {
         }) {
             super({
                 alignment: opts.alignment,
+                isActive: opts.isActive,
+                isHidden: opts.isHidden,
                 xOffset: (opts.xOffset != null) ? opts.xOffset : 0,
                 yOffset: (opts.yOffset != null) ? opts.yOffset : 0,
                 xScaling: opts.xScaling,
@@ -458,6 +479,8 @@ namespace microcode {
         constructor(opts: {
             alignment: GUIComponentAlignment,
             navigator: INavigator,
+            isActive: boolean,
+            isHidden: boolean,
             xOffset?: number,
             yOffset?: number,
             width: number,
@@ -468,6 +491,8 @@ namespace microcode {
         }) {
             super({
                 alignment: opts.alignment,
+                isActive: opts.isActive,
+                isHidden: opts.isHidden,
                 xOffset: (opts.xOffset != null) ? opts.xOffset : 0,
                 yOffset: (opts.yOffset != null) ? opts.yOffset : 0,
                 width: TextBox.DEFAULT_WIDTH,
@@ -623,6 +648,8 @@ namespace microcode {
         constructor(opts: {
             next: (arg0: string) => void,
             alignment: GUIComponentAlignment,
+            isActive: boolean,
+            isHidden: boolean,
             xOffset?: number,
             yOffset?: number,
             xScaling?: number,
@@ -635,6 +662,8 @@ namespace microcode {
             super({
                 alignment: opts.alignment,
                 navigator: new GridNavigator(5, 5, KeyboardComponent.WIDTHS),
+                isActive: opts.isActive,
+                isHidden: opts.isHidden,
                 xOffset: (opts.xOffset != null) ? opts.xOffset : 0,
                 yOffset: (opts.yOffset != null) ? opts.yOffset : 0,
                 width: KeyboardComponent.DEFAULT_WIDTH,
@@ -815,6 +844,14 @@ namespace microcode {
 
             if (this.components != null && opts.hideByDefault)
                 this.focus(this.currentComponentID)
+
+            
+            input.onButtonPressed(1, function() {
+                // this.currentComponentID = (this.currentComponentID + 1) % this.components.length
+                // this.focus(this.currentComponentID)
+                this.currentComponentID = 1
+                this.focus(this.currentComponentID)
+            })
         }
 
         /* override */ startup() {
@@ -823,7 +860,7 @@ namespace microcode {
 
         focus(componentID: number, hideOthers: boolean = true) {
             if (hideOthers)
-                this.components.forEach(component => component.hide())
+                this.components.forEach(component => component.makeActive())
             this.components[componentID].unHide()
 
             this.currentComponentID = componentID
@@ -847,7 +884,7 @@ namespace microcode {
 
             if (this.components != null) {
                 this.components.forEach(component => {
-                    if (!component.isHidden())
+                    if (!component.hidden)
                         component.draw()
                 })
             }
@@ -862,8 +899,6 @@ namespace microcode {
         private height: number;
         private widths: number[];
 
-        private isActive: boolean;
-
         private cursorBounds: Bounds;
         private cursorOutlineColour: number;
         private cursorRow: number;
@@ -873,14 +908,14 @@ namespace microcode {
             alignment: GUIComponentAlignment,
             btns: Button[][], 
             isActive: boolean,
+            isHidden?: boolean,
             xOffset?: number,
             yOffset?: number,
             xScaling?: number,
             yScaling?: number,
             colour?: number,
             border?: boolean,
-            title?: string
-            isHidden?: boolean, 
+            title?: string,
             cursorColour?: number
         }) {
             super({
@@ -889,6 +924,8 @@ namespace microcode {
                 yOffset: (opts.yOffset != null) ? opts.yOffset : 0,
                 width: TextBox.DEFAULT_WIDTH,
                 height: TextBox.DEFAULT_HEIGHT,
+                isActive: opts.isActive,
+                isHidden: opts.isHidden,
                 xScaling: opts.xScaling,
                 yScaling: opts.yScaling,
                 colour: opts.colour,
@@ -1053,16 +1090,18 @@ namespace microcode {
         }
 
         draw() {
-            if (this.isActive) {
-                this.drawCursor()
-            }
+            super.draw()
 
-            if (!this.isHidden()) {
+            if (!this.hidden) {
+                if (this.isActive) {
+                    this.drawCursor()
+                }
+
                 this.btns.forEach(btnRow => btnRow.forEach(btn => btn.draw()))
-            }
 
-            if (this.isActive) {
-                this.drawCursorText()
+                if (this.isActive) {
+                    this.drawCursorText()
+                }
             }
         }
     }
