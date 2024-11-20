@@ -4,10 +4,11 @@ namespace microcode {
     const simpleTextComponent = new TextBox({
         alignment: GUIComponentAlignment.BOT,
         isActive: false,
-        title: "Title",
-        text: "howdy there partner, I hope you are well. Isn't this text neat?",
+        title: "Title Text :)",
+        // text: "howdy there, I hope you are well. Isn't this neat?",
+        text: ["Howdy there", "I hope you are well.", "Isn't this neat?"],
         colour: 6,
-        xScaling: 1.1
+        xScaling: 1.7
     })
 
     const simpleBtnComponent = new ButtonCollection({

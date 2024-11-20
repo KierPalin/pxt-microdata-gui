@@ -208,7 +208,7 @@ namespace microcode {
             colour?: number,
             border?: boolean,
             title?: string,
-            text?: string
+            text?: string | string[]
         }) {
             super({
                 alignment: opts.alignment,
@@ -231,12 +231,16 @@ namespace microcode {
                 this.textChunks = [""]
             }
 
-            else {
+            else if (typeof(opts.text) === 'string') {
                 this.textChunks = [];
 
                 for (let i = 0; i < opts.text.length; i += this.maxCharactersPerLine) {
                     this.textChunks.push(opts.text.slice(i, i + this.maxCharactersPerLine));
                 }
+            }
+
+            else {
+                this.textChunks = opts.text
             }
         }
 
