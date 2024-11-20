@@ -189,202 +189,7 @@ namespace microcode {
         }
     }
 
-
-    export class B extends GUIComponentAbstract {
-        public cursor: Cursor
-        public picker: Picker
-        public navigator: INavigator
-        private btns: Button[];
-        private title: string;
-
-        constructor(opts: {
-            alignment: GUIComponentAlignment,
-            width: number,
-            height: number,
-            xOffset?: number,
-            yOffset?: number,
-            scaling?: number,
-            colour?: number,
-            title?: string,
-        }) {
-            super(opts)
-
-            this.btns = [];
-            this.title = (opts.title != null) ? opts.title : ""
-            this.navigator = new microcode.GridNavigator(3, 4)
-
-            this.startup()
-        }
-
-        /* override */ startup() {
-            super.startup()
-
-            let x = (screen().width / 5) - (screen().width / 2);
-            let y = -30;
-            for (let i = 0; i < 3; i++) {
-                for (let j = 0; j < 4; j++) {
-                    this.btns.push(new Button({
-                        parent: null,
-                        style: ButtonStyles.Transparent,
-                        icon: "" + ((i * 4) + j + 1),
-                        x,
-                        y,
-                        onClick: (button: Button) => { }
-                    }))
-                    x += screen().width / 5
-                }
-                y += screen().height / 4
-                x = (screen().width / 5) - (screen().width / 2);
-            }
-
-            control.onEvent(
-                ControllerButtonEvent.Pressed,
-                controller.right.id,
-                () => this.moveCursor(CursorDir.Right)
-            )
-            control.onEvent(
-                ControllerButtonEvent.Pressed,
-                controller.up.id,
-                () => this.moveCursor(CursorDir.Up)
-            )
-            control.onEvent(
-                ControllerButtonEvent.Pressed,
-                controller.down.id,
-                () => this.moveCursor(CursorDir.Down)
-            )
-            control.onEvent(
-                ControllerButtonEvent.Pressed,
-                controller.left.id,
-                () => this.moveCursor(CursorDir.Left)
-            )
-
-            // click
-            const click = () => this.cursor.click()
-            control.onEvent(
-                ControllerButtonEvent.Pressed,
-                controller.A.id,
-                click
-            )
-            control.onEvent(
-                ControllerButtonEvent.Pressed,
-                controller.A.id + keymap.PLAYER_OFFSET,
-                click
-            )
-            control.onEvent(
-                ControllerButtonEvent.Pressed,
-                controller.B.id,
-                () => this.back()
-            )
-
-            this.cursor.navigator = this.navigator
-            this.navigator.addButtons(this.btns)
-
-            this.cursor = new Cursor()
-            this.picker = new Picker(this.cursor)
-
-            if (this.navigator == null)
-                this.navigator = new RowNavigator()
-            this.cursor.navigator = this.navigator
-        }
-
-        draw() {
-            Screen.fillRect(
-                Screen.LEFT_EDGE,
-                Screen.TOP_EDGE,
-                Screen.WIDTH,
-                Screen.HEIGHT,
-                0xc
-            )
-
-            this.printCenter(this.title)
-
-            // if (this.picker == null || this.cursor == null) {
-            //     basic.showString("Y")
-            // }
-
-            // this.picker.draw()
-            // this.cursor.draw()
-
-            // for (let i = 0; i < this.btns.length; i++)
-            //     this.btns[i].draw()
-
-            super.draw()
-        }
-
-        protected moveCursor(dir: CursorDir) {
-            try {
-                this.moveTo(this.cursor.move(dir))
-            } catch (e) {
-                if (dir === CursorDir.Up && e.kind === BACK_BUTTON_ERROR_KIND)
-                    this.back()
-                else if (
-                    dir === CursorDir.Down &&
-                    e.kind === FORWARD_BUTTON_ERROR_KIND
-                )
-                    return
-                else throw e
-            }
-        }
-
-        protected moveTo(target: Button) {
-            if (!target) return
-            this.cursor.moveTo(
-                target.xfrm.worldPos,
-                target.ariaId,
-                target.bounds
-            )
-        }
-
-        back() {
-            if (!this.cursor.cancel()) this.moveCursor(CursorDir.Back)
-        }
-
-        protected handleClick(x: number, y: number) {
-            const target = this.cursor.navigator.screenToButton(
-                x - Screen.HALF_WIDTH,
-                y - Screen.HALF_HEIGHT
-            )
-            if (target) {
-                this.moveTo(target)
-                target.click()
-            } else if (this.picker.visible) {
-                this.picker.hide()
-            }
-        }
-
-        protected handleMove(x: number, y: number) {
-            const btn = this.cursor.navigator.screenToButton(
-                x - Screen.HALF_WIDTH,
-                y - Screen.HALF_HEIGHT
-            )
-            if (btn) {
-                const w = btn.xfrm.worldPos
-                this.cursor.snapTo(w.x, w.y, btn.ariaId, btn.bounds)
-                btn.reportAria(true)
-            }
-        }
-
-        /* override */ shutdown() {
-            this.navigator.clear()
-        }
-
-        /* override */ activate() {
-            super.activate()
-            const btn = this.navigator.initialCursor(0, 0)
-            if (btn) {
-                const w = btn.xfrm.worldPos
-                this.cursor.snapTo(w.x, w.y, btn.ariaId, btn.bounds)
-                btn.reportAria(true)
-            }
-        }
-
-        /* override */ update() {
-            this.cursor.update()
-        }
-    }
-
-    export class GUIBox extends GUIComponentAbstract {
-        // private btns: Button[]
+    export class TextBox extends GUIComponentAbstract {
         private title: string
 
         constructor(opts: {
@@ -401,37 +206,25 @@ namespace microcode {
                 alignment: opts.alignment,
                 xOffset: (opts.xOffset != null) ? opts.xOffset : 0,
                 yOffset: (opts.yOffset != null) ? opts.yOffset : 0,
-                width: GUIBox.DEFAULT_WIDTH,
-                height: GUIBox.DEFAULT_HEIGHT,
+                width: TextBox.DEFAULT_WIDTH,
+                height: TextBox.DEFAULT_HEIGHT,
                 xScaling: opts.xScaling,
                 yScaling: opts.yScaling,
                 colour: opts.colour,
                 border: opts.border
             })
 
-            // this.btns = [
-            //     new microcode.Button({
-            //         icon: "",
-            //         x: -(10 * ((opts.xOffset != null) ? opts.xOffset : 1)),
-            //         y: -30
-            //     })
-            // ]
-
             this.title = (opts.title != null) ? opts.title : ""
-
-            // this.nav = new microcode.GridNavigator(3, 4)
-            // this.nav.addButtons(this.btns)
         }
 
         draw() {
             super.draw()
             this.printCenter(this.title)
 
-
         }
     }
 
-    export class GUISlider extends GUIBox {
+    export class GUISlider extends TextBox {
         private maximum: number;
         private minimum: number;
 
@@ -507,7 +300,7 @@ namespace microcode {
         }
     }
 
-    export class GUIGraph extends GUIBox {
+    export class GUIGraph extends TextBox {
         private graphableFns: GraphableFunction[]
 
         constructor(opts: {
@@ -664,21 +457,21 @@ namespace microcode {
 
         constructor(opts: {
             alignment: GUIComponentAlignment,
+            navigator: INavigator,
             xOffset?: number,
             yOffset?: number,
             width: number,
             height: number,
             xScaling?: number,
             yScaling?: number,
-            colour?: number,
-            navigator?: INavigator
+            colour?: number
         }) {
             super({
                 alignment: opts.alignment,
                 xOffset: (opts.xOffset != null) ? opts.xOffset : 0,
                 yOffset: (opts.yOffset != null) ? opts.yOffset : 0,
-                width: GUIBox.DEFAULT_WIDTH,
-                height: GUIBox.DEFAULT_HEIGHT,
+                width: TextBox.DEFAULT_WIDTH,
+                height: TextBox.DEFAULT_HEIGHT,
                 xScaling: opts.xScaling,
                 yScaling: opts.yScaling,
                 colour: opts.colour
@@ -841,6 +634,7 @@ namespace microcode {
 
             super({
                 alignment: opts.alignment,
+                navigator: new GridNavigator(5, 5, KeyboardComponent.WIDTHS),
                 xOffset: (opts.xOffset != null) ? opts.xOffset : 0,
                 yOffset: (opts.yOffset != null) ? opts.yOffset : 0,
                 width: KeyboardComponent.DEFAULT_WIDTH,
@@ -1051,12 +845,225 @@ namespace microcode {
                 this.backgroundColor
             )
 
-            this.components.forEach(component => {
-                if (!component.isHidden())
-                    component.draw()
-            })
+            if (this.components != null) {
+                this.components.forEach(component => {
+                    if (!component.isHidden())
+                        component.draw()
+                })
+            }
 
             // this.cursor.draw()
+        }
+    }
+
+
+    export class ButtonCollection extends GUIComponentAbstract {
+        private btns: Button[][];
+        private height: number;
+        private widths: number[];
+
+        private isActive: boolean;
+
+        private cursorBounds: Bounds;
+        private cursorOutlineColour: number;
+        private cursorRow: number;
+        private cursorCol: number;
+
+        constructor(opts: {
+            alignment: GUIComponentAlignment,
+            btns: Button[][], 
+            isActive: boolean,
+            xOffset?: number,
+            yOffset?: number,
+            xScaling?: number,
+            yScaling?: number,
+            colour?: number,
+            border?: boolean,
+            title?: string
+            isHidden?: boolean, 
+            cursorColour?: number
+        }) {
+            super({
+                alignment: opts.alignment,
+                xOffset: (opts.xOffset != null) ? opts.xOffset : 0,
+                yOffset: (opts.yOffset != null) ? opts.yOffset : 0,
+                width: TextBox.DEFAULT_WIDTH,
+                height: TextBox.DEFAULT_HEIGHT,
+                xScaling: opts.xScaling,
+                yScaling: opts.yScaling,
+                colour: opts.colour,
+                border: opts.border
+            })
+
+            this.btns = opts.btns;
+            this.isActive = opts.isActive
+
+            this.height = this.btns.length
+            this.widths = this.btns.map(row => row.length)
+
+            this.cursorBounds = new Bounds({
+                width: this.btns[0][0].width + 4,
+                height: this.btns[0][0].height + 4,
+                left: this.btns[0][0].xfrm.localPos.x - (this.btns[0][0].width / 2) - 2,
+                top: this.btns[0][0].xfrm.localPos.y - (this.btns[0][0].height / 2) - 2
+            })
+            this.cursorOutlineColour = (opts.cursorColour != null) ? opts.cursorColour : 9; // Default is light blue
+            this.cursorRow = 0;
+            this.cursorCol = 0;
+
+            if (this.isActive)
+                this.bindShieldButtons()
+        }
+
+        bindShieldButtons() {
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.right.id,
+                () => {
+                    if (this.cursorCol == this.widths[this.cursorRow])
+                        this.cursorCol = 0
+                    else
+                        this.cursorCol = (this.cursorCol + 1) % this.widths[this.cursorRow]
+                    this.updateCursor()
+                }
+            )
+
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.up.id,
+                () => {
+                    this.cursorRow = (((this.cursorRow - 1) % this.height) + this.height) % this.height; // Non-negative modulo
+
+                    // Row above might have less cols, adjust if neccessary:
+                    if (this.widths[this.cursorRow] <= this.cursorCol)
+                        this.cursorCol = this.widths[this.cursorRow] - 1
+                    this.updateCursor()
+                }
+            )
+
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.down.id,
+                () => {
+                    this.cursorRow = (this.cursorRow + 1) % this.height;
+
+                    // Row below might have less cols, adjust if neccessary:
+                    if (this.widths[this.cursorRow] <= this.cursorCol)
+                        this.cursorCol = this.widths[this.cursorRow] - 1
+                    this.updateCursor()
+                }
+            )
+
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.left.id,
+                () => {
+                    if (this.cursorCol == 0)
+                        this.cursorCol = this.widths[this.cursorRow] - 1
+                    else
+                        this.cursorCol -= 1
+                    this.updateCursor()
+                }
+            )
+
+            // click
+            const click = () => this.click()
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.A.id,
+                click
+            )
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.A.id + keymap.PLAYER_OFFSET,
+                click
+            )
+            control.onEvent(
+                ControllerButtonEvent.Pressed,
+                controller.B.id,
+                () => this.back()
+            )
+        }
+
+        unbindShieldButtons() {
+            control.onEvent(ControllerButtonEvent.Pressed, controller.A.id, () => { })
+            control.onEvent(ControllerButtonEvent.Pressed, controller.A.id + keymap.PLAYER_OFFSET, () => { })
+            control.onEvent(ControllerButtonEvent.Pressed, controller.B.id, () => { })
+            control.onEvent(ControllerButtonEvent.Pressed, controller.up.id, () => { })
+            control.onEvent(ControllerButtonEvent.Pressed, controller.down.id, () => { })
+            control.onEvent(ControllerButtonEvent.Pressed, controller.left.id, () => { })
+            control.onEvent(ControllerButtonEvent.Pressed, controller.right.id, () => { })
+        }
+
+        makeActive() {
+            this.isActive = true
+            this.bindShieldButtons()
+        }
+
+        unmakeActive() {
+            this.isActive = false
+            this.bindShieldButtons()
+        }
+
+        click() {
+            this.btns[this.cursorRow][this.cursorCol].onClick(this.btns[this.cursorRow][this.cursorCol])
+        }
+
+        back() {
+
+        }
+
+        updateCursor() {
+            const x = this.cursorRow
+            const y = this.cursorCol
+            this.cursorBounds = new Bounds({
+                width: this.btns[x][y].width + 4,
+                height: this.btns[x][y].height + 4,
+                left: this.btns[x][y].xfrm.localPos.x - (this.btns[x][y].width / 2) - 2,
+                top: this.btns[x][y].xfrm.localPos.y - (this.btns[x][y].height / 2) - 2
+            })
+            this.drawCursor()
+        }
+
+        drawCursor() {
+            this.cursorBounds.fillRect(this.cursorOutlineColour)
+        }
+
+        drawCursorText() {
+            const ariaId = this.btns[this.cursorRow][this.cursorCol].ariaId
+            const text = accessibility.ariaToTooltip(ariaId)
+
+            if (text) {
+                const pos = this.cursorBounds;
+                const n = text.length
+                const font = microcode.font
+                const w = font.charWidth * n
+                const h = font.charHeight
+                const x = Math.max(
+                    Screen.LEFT_EDGE + 1,
+                    Math.min(Screen.RIGHT_EDGE - 1 - w, pos.left + (pos.width >> 1) - (w >> 1))
+                )
+                const y = Math.min(
+                    pos.top + (pos.height) + 1,
+                    Screen.BOTTOM_EDGE - 1 - font.charHeight
+                )
+                Screen.fillRect(x - 1, y - 1, w + 1, h + 2, 15)
+                Screen.print(text, x, y, 1, font)
+            }
+        }
+
+        draw() {
+            if (this.isActive) {
+                this.drawCursor()
+            }
+
+            if (!this.isHidden()) {
+                this.btns.forEach(btnRow => btnRow.forEach(btn => btn.draw()))
+            }
+
+            if (this.isActive) {
+                this.drawCursorText()
+            }
         }
     }
 }
