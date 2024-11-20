@@ -71,6 +71,7 @@ namespace microcode {
 
             this.xOffset = (opts.xOffset != null) ? opts.xOffset : 0
             this.yOffset = (opts.yOffset != null) ? opts.yOffset : 0
+            
             this.unscaledComponentWidth = opts.width
             this.unscaledComponentHeight = opts.height
             this.hasBorder = (opts.border != null) ? opts.border : false
@@ -87,6 +88,8 @@ namespace microcode {
             })
         }
 
+        public get width() { return this.unscaledComponentWidth * this.xScaling }
+        public get height() { return this.unscaledComponentHeight * this.yScaling }
         public get active() { return this.isActive }
         public get hidden() { return this.isHidden }
 
@@ -97,15 +100,6 @@ namespace microcode {
         unHide(): void { this.isHidden = false }
 
         getAlignment(): number { return this.alignment }
-
-        printCenter(text: string) {
-            const textOffset = (font.charWidth * text.length) >> 1
-            screen().print(
-                text,
-                (screen().width >> 1) + this.bounds.left + ((this.unscaledComponentWidth * this.xScaling) >> 1) - textOffset,
-                (screen().height >> 1) + this.bounds.top + 1
-            )
-        }
 
         /**
          * This should be overriden.
@@ -199,7 +193,9 @@ namespace microcode {
     }
 
     export class TextBox extends GUIComponentAbstract {
-        private title: string
+        private title: string;
+        private maxCharactersPerLine: number;
+        private textChunks: string[];
 
         constructor(opts: {
             alignment: GUIComponentAlignment,
@@ -211,7 +207,8 @@ namespace microcode {
             yScaling?: number,
             colour?: number,
             border?: boolean,
-            title?: string
+            title?: string,
+            text?: string
         }) {
             super({
                 alignment: opts.alignment,
@@ -228,12 +225,45 @@ namespace microcode {
             })
 
             this.title = (opts.title != null) ? opts.title : ""
+            this.maxCharactersPerLine = this.width / (font.charWidth + 1)
+
+            if (opts.text == null) {
+                this.textChunks = [""]
+            }
+
+            else {
+                this.textChunks = [];
+
+                for (let i = 0; i < opts.text.length; i += this.maxCharactersPerLine) {
+                    this.textChunks.push(opts.text.slice(i, i + this.maxCharactersPerLine));
+                }
+            }
         }
 
         draw() {
             super.draw()
-            this.printCenter(this.title)
+            // this.printCenter(this.text)
 
+            const titleOffset = (font.charWidth * this.title.length) >> 1;
+
+            screen().print(
+                this.title,
+                (screen().width >> 1) + this.bounds.left + (this.width >> 1) - titleOffset,
+                (screen().height >> 1) + this.bounds.top + 2
+            )
+
+
+            let yOffset = 8;
+            this.textChunks.forEach(textChunk => {
+                const textOffset = (font.charWidth * textChunk.length) >> 1
+                screen().print(
+                    textChunk,
+                    (screen().width >> 1) + this.bounds.left + (this.width >> 1) - textOffset,
+                    (screen().height >> 1) + this.bounds.top + 2 + yOffset
+                )
+
+                yOffset += 8
+            })
         }
     }
 
@@ -900,8 +930,8 @@ namespace microcode {
 
     export class ButtonCollection extends GUIComponentAbstract {
         private btns: Button[][];
-        private height: number;
-        private widths: number[];
+        private numberOfRows: number;
+        private numberOfCols: number[];
 
         private cursorBounds: Bounds;
         private cursorOutlineColour: number;
@@ -949,8 +979,8 @@ namespace microcode {
 
                 this.isActive = opts.isActive
 
-                this.height = this.btns.length
-                this.widths = this.btns.map(row => row.length)
+                this.numberOfCols = this.btns.map(row => row.length)
+                this.numberOfRows = this.btns.length
 
                 this.cursorBounds = new Bounds({
                     width: this.btns[0][0].width + 4,
@@ -972,10 +1002,10 @@ namespace microcode {
                 ControllerButtonEvent.Pressed,
                 controller.right.id,
                 () => {
-                    if (this.cursorCol == this.widths[this.cursorRow])
+                    if (this.cursorCol == this.numberOfCols[this.cursorRow])
                         this.cursorCol = 0
                     else
-                        this.cursorCol = (this.cursorCol + 1) % this.widths[this.cursorRow]
+                        this.cursorCol = (this.cursorCol + 1) % this.numberOfCols[this.cursorRow]
                     this.updateCursor()
                 }
             )
@@ -984,11 +1014,11 @@ namespace microcode {
                 ControllerButtonEvent.Pressed,
                 controller.up.id,
                 () => {
-                    this.cursorRow = (((this.cursorRow - 1) % this.height) + this.height) % this.height; // Non-negative modulo
+                    this.cursorRow = (((this.cursorRow - 1) % this.numberOfRows) + this.numberOfRows) % this.numberOfRows; // Non-negative modulo
 
                     // Row above might have less cols, adjust if neccessary:
-                    if (this.widths[this.cursorRow] <= this.cursorCol)
-                        this.cursorCol = this.widths[this.cursorRow] - 1
+                    if (this.numberOfCols[this.cursorRow] <= this.cursorCol)
+                        this.cursorCol = this.numberOfCols[this.cursorRow] - 1
                     this.updateCursor()
                 }
             )
@@ -997,11 +1027,11 @@ namespace microcode {
                 ControllerButtonEvent.Pressed,
                 controller.down.id,
                 () => {
-                    this.cursorRow = (this.cursorRow + 1) % this.height;
+                    this.cursorRow = (this.cursorRow + 1) % this.numberOfRows;
 
                     // Row below might have less cols, adjust if neccessary:
-                    if (this.widths[this.cursorRow] <= this.cursorCol)
-                        this.cursorCol = this.widths[this.cursorRow] - 1
+                    if (this.numberOfCols[this.cursorRow] <= this.cursorCol)
+                        this.cursorCol = this.numberOfCols[this.cursorRow] - 1
                     this.updateCursor()
                 }
             )
@@ -1011,7 +1041,7 @@ namespace microcode {
                 controller.left.id,
                 () => {
                     if (this.cursorCol == 0)
-                        this.cursorCol = this.widths[this.cursorRow] - 1
+                        this.cursorCol = this.numberOfCols[this.cursorRow] - 1
                     else
                         this.cursorCol -= 1
                     this.updateCursor()
