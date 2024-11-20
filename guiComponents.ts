@@ -932,6 +932,15 @@ namespace microcode {
             })
 
             this.btns = opts.btns;
+
+            // Adjust button x & y to be relative to this components window left & top:
+            this.btns.forEach(row => {
+                row.forEach(btn => {
+                    btn.xfrm.localPos.x = this.bounds.left + btn.xfrm.localPos.x + (btn.width >> 1) + 2
+                    btn.xfrm.localPos.y = this.bounds.top + btn.xfrm.localPos.y + (btn.height >> 1) + 2
+                })
+            })
+
             this.isActive = opts.isActive
 
             this.height = this.btns.length
@@ -940,8 +949,8 @@ namespace microcode {
             this.cursorBounds = new Bounds({
                 width: this.btns[0][0].width + 4,
                 height: this.btns[0][0].height + 4,
-                left: this.btns[0][0].xfrm.localPos.x - (this.btns[0][0].width / 2) - 2,
-                top: this.btns[0][0].xfrm.localPos.y - (this.btns[0][0].height / 2) - 2
+                left: this.btns[0][0].xfrm.localPos.x - (this.btns[0][0].width >> 1) - 2,
+                top: this.btns[0][0].xfrm.localPos.y - (this.btns[0][0].height >> 1) - 2
             })
             this.cursorOutlineColour = (opts.cursorColour != null) ? opts.cursorColour : 9; // Default is light blue
             this.cursorRow = 0;

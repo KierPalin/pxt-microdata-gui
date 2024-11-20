@@ -115,9 +115,9 @@ const app = new microcode.App();
 const comp1 = new microcode.ButtonCollection({
     alignment: microcode.GUIComponentAlignment.TOP,
     btns: [
-        [new microcode.Button({ icon: "accelerometer", ariaId: "", x: 40, y: 0, onClick: () => basic.showNumber(0) }),
+        [new microcode.Button({ icon: "accelerometer", ariaId: "", x: 0, y: 0, onClick: () => basic.showNumber(0) }),
         new microcode.Button({ icon: "accelerometer", ariaId: "", x: 20, y: 0, onClick: () => basic.showNumber(6) })],
-        [new microcode.Button({ icon: "accelerometer", ariaId: "", x: 40, y: 20, onClick: () => basic.showNumber(1) })]
+        [new microcode.Button({ icon: "accelerometer", ariaId: "", x: 20, y: 20, onClick: () => basic.showNumber(1) })]
     ],
     isActive: true,
 })
@@ -125,8 +125,8 @@ const comp1 = new microcode.ButtonCollection({
 const comp2 = new microcode.ButtonCollection({
     alignment: microcode.GUIComponentAlignment.LEFT,
     btns: [
-        [new microcode.Button({ icon: "thermometer", ariaId: "", x: -40, y: 0, onClick: () => basic.showNumber(2) })],
-        [new microcode.Button({ icon: "thermometer", ariaId: "", x: -40, y: 20, onClick: () => basic.showNumber(3) })]
+        [new microcode.Button({ icon: "thermometer", ariaId: "", x: 10, y: 0, onClick: () => basic.showNumber(2) })],
+        [new microcode.Button({ icon: "thermometer", ariaId: "", x: 10, y: 20, onClick: () => basic.showNumber(3) })]
     ],
     isActive: false,
     isHidden: true,
