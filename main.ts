@@ -112,27 +112,40 @@ const app = new microcode.App();
 
 // app.pushScene(new microcode.W(app))
 
-const comp1 = new microcode.ButtonCollection({
-    alignment: microcode.GUIComponentAlignment.TOP,
-    btns: [
-        [new microcode.Button({ icon: "accelerometer", ariaId: "", x: 0, y: 0, onClick: () => basic.showNumber(0) }),
-        new microcode.Button({ icon: "accelerometer", ariaId: "", x: 20, y: 0, onClick: () => basic.showNumber(6) })],
-        [new microcode.Button({ icon: "accelerometer", ariaId: "", x: 20, y: 20, onClick: () => basic.showNumber(1) })]
-    ],
-    isActive: true,
-})
+namespace microcode {
+    const comp1 = new ButtonCollection({
+        alignment: GUIComponentAlignment.TOP,
+        btns: [
+            [new Button({ icon: "accelerometer", ariaId: "", x: 0, y: 0, onClick: () => basic.showNumber(0) }),
+            new Button({ icon: "accelerometer", ariaId: "", x: 20, y: 0, onClick: () => basic.showNumber(6) })],
+            [new Button({ icon: "accelerometer", ariaId: "", x: 20, y: 20, onClick: () => basic.showNumber(1) })]
+        ],
+        isActive: true,
+    })
 
-const comp2 = new microcode.ButtonCollection({
-    alignment: microcode.GUIComponentAlignment.LEFT,
-    btns: [
-        [new microcode.Button({ icon: "thermometer", ariaId: "", x: 10, y: 0, onClick: () => basic.showNumber(2) })],
-        [new microcode.Button({ icon: "thermometer", ariaId: "", x: 10, y: 20, onClick: () => basic.showNumber(3) })]
-    ],
-    isActive: false,
-    isHidden: true,
-    colour: 7,
-})
+    const comp2 = new ButtonCollection({
+        alignment: GUIComponentAlignment.LEFT,
+        btns: [
+            [new Button({ icon: "thermometer", ariaId: "", x: 10, y: 0, onClick: () => basic.showNumber(2) })],
+            [new Button({ icon: "thermometer", ariaId: "", x: 10, y: 20, onClick: () => basic.showNumber(3) })]
+        ],
+        isActive: false,
+        isHidden: true,
+        colour: 7,
+    })
 
-const window = new microcode.Window({ app, components: [comp1, comp2] })
+    const comp3 = new ButtonCollection({
+        alignment: GUIComponentAlignment.BOT_RIGHT,
+        btns: [
+            [new Button({icon: "thermometer", onClick: () => basic.showString("hi")})],
+        ],
+        isActive: true,
+        colour: 2,
+        xScaling: 0.7,
+        xOffset: 0
+    })
 
-app.pushScene(window)
+    const window = new Window({ app, components: [comp3] })
+
+    app.pushScene(window)
+}
