@@ -823,6 +823,7 @@ namespace microcode {
      */
     export class Window extends Scene {
         private components: GUIComponentAbstract[];
+        private componentQty: number;
         private currentComponentID: number;
 
         constructor(opts: {
@@ -833,19 +834,20 @@ namespace microcode {
             components?: GUIComponentAbstract[],
             hideByDefault?: boolean
         }) {
-            super(app)
+            super(opts.app)
 
             if (opts.colour != null)
                 this.backgroundColor = opts.colour
 
             this.components = opts.components
+            this.componentQty = this.components.length
             this.currentComponentID = 0
 
             if (this.components != null && opts.hideByDefault)
                 this.focus(this.currentComponentID, true)
 
             input.onButtonPressed(1, function() {
-                this.currentComponentID = (this.currentComponentID + 1) % 2
+                this.currentComponentID = (this.currentComponentID + 1) % this.componentQty
                 this.focus(this.currentComponentID, true)
             })
         }
@@ -868,7 +870,6 @@ namespace microcode {
         showAllComponents() {
             this.components.forEach(component => component.unHide())
         }
-
 
         draw() {
             super.draw()
