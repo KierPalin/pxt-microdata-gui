@@ -68,19 +68,21 @@ namespace microcode {
                 // new C([new Button({ icon: "thermometer", ariaId: "", x: -40, y: 0 })])
                 new ButtonCollection({
                     btns: [
-                        [new Button({ icon: "accelerometer", ariaId: "", x: 40, y: 0, onClick: () => basic.showNumber(0)})],
-                        [new Button({ icon: "accelerometer", ariaId: "", x: 40, y: 20, onClick: () => basic.showNumber(1)})]
+                        [new Button({ icon: "accelerometer", ariaId: "", x: 40, y: 0, onClick: () => basic.showNumber(0) })],
+                        [new Button({ icon: "accelerometer", ariaId: "", x: 40, y: 20, onClick: () => basic.showNumber(1) })]
                     ],
+                    isActive: true,
                 }),
                 new ButtonCollection({
                     btns: [
-                        [new Button({ icon: "thermometer", ariaId: "", x: -40, y: 0, onClick: () => basic.showNumber(2)})],
-                        [new Button({ icon: "thermometer", ariaId: "", x: -40, y: 20, onClick: () => basic.showNumber(3)})]
+                        [new Button({ icon: "thermometer", ariaId: "", x: -40, y: 0, onClick: () => basic.showNumber(2) })],
+                        [new Button({ icon: "thermometer", ariaId: "", x: -40, y: 20, onClick: () => basic.showNumber(3) })]
                     ],
-                    isHidden: true
+                    isActive: false,
+                    isHidden: false
                 }),
             ]
-            this.i = 0
+            this.i = 1
 
             input.onButtonPressed(1, function () {
                 this.toggleActiveBtnComponent()
@@ -94,6 +96,7 @@ namespace microcode {
 
             this.btnCollections.forEach(btnC => btnC.hide())
             this.btnCollections[this.i].unHide()
+            this.btnCollections[this.i].bindShieldButtons()
         }
 
         draw() {
@@ -112,6 +115,7 @@ namespace microcode {
         private height: number;
         private widths: number[];
 
+        private isActive: boolean;
         private isHidden: boolean;
 
         private cursorBounds: Bounds;
@@ -119,19 +123,27 @@ namespace microcode {
         private cursorRow: number;
         private cursorCol: number;
 
-        constructor(opts: { btns: Button[][], isHidden?: boolean, cursorColour?: number }) {
+        constructor(opts: { btns: Button[][], isActive: boolean, isHidden?: boolean, cursorColour?: number }) {
             this.btns = opts.btns;
+
+            this.isActive = opts.isActive
             this.isHidden = (opts.isHidden != null) ? opts.isHidden : false;
 
             this.height = this.btns.length
             this.widths = this.btns.map(row => row.length)
 
-            this.cursorBounds = this.btns[0][0].bounds
-            this.cursorOutlineColour = (opts.cursorColour != null) ? opts.cursorColour : 9 // Default is light blue
+            this.cursorBounds = new Bounds({
+                width: this.btns[0][0].width + 4,
+                height: this.btns[0][0].height + 4,
+                left: this.btns[0][0].xfrm.localPos.x - (this.btns[0][0].width / 2) - 2,
+                top: this.btns[0][0].xfrm.localPos.y - (this.btns[0][0].height / 2) - 2
+            })
+            this.cursorOutlineColour = (opts.cursorColour != null) ? opts.cursorColour : 9; // Default is light blue
             this.cursorRow = 0;
             this.cursorCol = 0;
 
-            this.bindShieldButtons()
+            if (this.isActive)
+                this.bindShieldButtons()
         }
 
         bindShieldButtons() {
@@ -204,7 +216,6 @@ namespace microcode {
             )
         }
 
-
         hide() {
             this.isHidden = true;
         }
@@ -222,19 +233,53 @@ namespace microcode {
         }
 
         updateCursor() {
-            this.cursorBounds = this.btns[this.cursorRow][this.cursorCol].bounds;
+            this.cursorBounds = new Bounds({
+                width: this.btns[0][0].width + 4,
+                height: this.btns[0][0].height + 4,
+                left: this.btns[0][0].xfrm.localPos.x - (this.btns[0][0].width / 2) - 2,
+                top: this.btns[0][0].xfrm.localPos.y - (this.btns[0][0].height / 2) - 2
+            })
             this.drawCursor()
         }
 
         drawCursor() {
-            this.cursorBounds.drawRect(this.cursorOutlineColour)
+            this.cursorBounds.fillRect(this.cursorOutlineColour)
+        }
+
+        drawCursorText() {
+            const ariaId = this.btns[this.cursorRow][this.cursorCol].ariaId
+            const text = accessibility.ariaToTooltip(ariaId)
+
+            if (text) {
+                const pos = this.cursorBounds;
+                const n = text.length
+                const font = microcode.font
+                const w = font.charWidth * n
+                const h = font.charHeight
+                const x = Math.max(
+                    Screen.LEFT_EDGE + 1,
+                    Math.min(Screen.RIGHT_EDGE - 1 - w, pos.left + (pos.width >> 1) - (w >> 1))
+                )
+                const y = Math.min(
+                    pos.top + (pos.height) + 1,
+                    Screen.BOTTOM_EDGE - 1 - font.charHeight
+                )
+                Screen.fillRect(x - 1, y - 1, w + 1, h + 2, 15)
+                Screen.print(text, x, y, 1, font)
+            }
         }
 
         draw() {
+            if (this.isActive) {
+                this.drawCursor()
+            }
+
             if (!this.isHidden) {
                 this.btns.forEach(btnRow => btnRow.forEach(btn => btn.draw()))
+            }
 
-                this.drawCursor()
+            if (this.isActive) {
+                this.drawCursorText()
             }
         }
     }
