@@ -205,10 +205,12 @@ namespace microcode {
         public pressable: boolean
 
         public get ariaId(): string {
-            return (
-                this._ariaId ||
-                (typeof this.iconId === "string" ? <string>this.iconId : "")
-            )
+            // return (
+            //     this._ariaId ||
+            //     (typeof this.iconId === "string" ? <string>this.iconId : "")
+            // )
+
+            return this._ariaId
         }
 
         public set ariaId(value: string) {

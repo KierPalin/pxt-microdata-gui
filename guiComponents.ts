@@ -23,8 +23,8 @@ namespace microcode {
      * A GUI Component has a .context for storage of hidden component state.
      */
     abstract class GUIComponentAbstract extends Scene {
-        public static DEFAULT_WIDTH: number = screen().width / 2;
-        public static DEFAULT_HEIGHT: number = screen().height / 2;
+        public static DEFAULT_WIDTH: number = screen().width >> 1;
+        public static DEFAULT_HEIGHT: number = screen().height >> 1;
         
         protected isActive: boolean;
         protected isHidden: boolean;
@@ -99,11 +99,11 @@ namespace microcode {
         getAlignment(): number { return this.alignment }
 
         printCenter(text: string) {
-            const textOffset = (font.charWidth * text.length) / 2
+            const textOffset = (font.charWidth * text.length) >> 1
             screen().print(
                 text,
-                (screen().width / 2) + this.bounds.left + ((this.unscaledComponentWidth * this.xScaling) / 2) - textOffset,
-                (screen().height / 2) + this.bounds.top + 1
+                (screen().width >> 1) + this.bounds.left + ((this.unscaledComponentWidth * this.xScaling) >> 1) - textOffset,
+                (screen().height >> 1) + this.bounds.top + 1
             )
         }
 
@@ -123,48 +123,48 @@ namespace microcode {
 
             switch (this.alignment) {
                 case (GUIComponentAlignment.TOP): {
-                    left = -((this.unscaledComponentWidth * this.xScaling) / 2) + this.xOffset;
-                    top = -(screen().height / 2) + this.yOffset;
+                    left = -((this.unscaledComponentWidth * this.xScaling) >> 1) + this.xOffset;
+                    top = -(screen().height >> 1) + this.yOffset;
                     break;
                 }
                 case (GUIComponentAlignment.LEFT): {
-                    left = -(screen().width / 2) + this.xOffset;
-                    top = -((this.unscaledComponentHeight * this.yScaling) / 2) + this.yOffset
+                    left = -(screen().width >> 1) + this.xOffset;
+                    top = -((this.unscaledComponentHeight * this.yScaling) >> 1) + this.yOffset
                     break;
                 }
                 case (GUIComponentAlignment.RIGHT): {
-                    left = (screen().width / 2) - (this.unscaledComponentWidth * this.xScaling) + this.xOffset;
-                    top = -((this.unscaledComponentHeight * this.yScaling) / 2) + this.yOffset
+                    left = (screen().width >> 1) - (this.unscaledComponentWidth * this.xScaling) + this.xOffset;
+                    top = -((this.unscaledComponentHeight * this.yScaling) >> 1) + this.yOffset
                     break;
                 }
                 case (GUIComponentAlignment.BOT): {
-                    left = -((this.unscaledComponentWidth * this.xScaling) / 2) + this.xOffset;
-                    top = (screen().height / 2) - (this.unscaledComponentHeight * this.yScaling) - this.yOffset;
+                    left = -((this.unscaledComponentWidth * this.xScaling) >> 1) + this.xOffset;
+                    top = (screen().height >> 1) - (this.unscaledComponentHeight * this.yScaling) - this.yOffset;
                     break;
                 }
                 case (GUIComponentAlignment.CENTRE): {
-                    left = -((this.unscaledComponentWidth * this.xScaling) / 2) + this.xOffset
-                    top = -((this.unscaledComponentHeight * this.yScaling) / 2) + this.yOffset
+                    left = -((this.unscaledComponentWidth * this.xScaling) >> 1) + this.xOffset
+                    top = -((this.unscaledComponentHeight * this.yScaling) >> 1) + this.yOffset
                     break;
                 }
                 case (GUIComponentAlignment.TOP_RIGHT): {
-                    left = ((screen().width / 2) - (this.unscaledComponentWidth * this.xScaling)) + this.xOffset;
-                    top = -(screen().height / 2) + this.yOffset;
+                    left = ((screen().width >> 1) - (this.unscaledComponentWidth * this.xScaling)) + this.xOffset;
+                    top = -(screen().height >> 1) + this.yOffset;
                     break;
                 }
                 case (GUIComponentAlignment.TOP_LEFT): {
-                    left = (-(screen().width / 2)) + this.xOffset;
-                    top = -(screen().height / 2) + this.yOffset;
+                    left = (-(screen().width >> 1)) + this.xOffset;
+                    top = -(screen().height >> 1) + this.yOffset;
                     break;
                 }
                 case (GUIComponentAlignment.BOT_RIGHT): {
-                    left = ((screen().width / 2) - (this.unscaledComponentWidth * this.xScaling)) + this.xOffset;
-                    top = (screen().height / 2) - (this.unscaledComponentHeight * this.yScaling) - this.yOffset;
+                    left = ((screen().width >> 1) - (this.unscaledComponentWidth * this.xScaling)) + this.xOffset;
+                    top = (screen().height >> 1) - (this.unscaledComponentHeight * this.yScaling) - this.yOffset;
                     break;
                 }
                 case (GUIComponentAlignment.BOT_LEFT): {
-                    left = (-(screen().width / 2)) + this.xOffset;
-                    top = (screen().height / 2) - (this.unscaledComponentHeight * this.yScaling) - this.yOffset;
+                    left = (-(screen().width >> 1)) + this.xOffset;
+                    top = (screen().height >> 1) - (this.unscaledComponentHeight * this.yScaling) - this.yOffset;
                     break;
                 }
             }
@@ -187,8 +187,8 @@ namespace microcode {
 
         draw(): void {
             screen().fillRect(
-                this.bounds.left + (screen().width / 2),
-                this.bounds.top + (screen().height / 2) + 2,
+                this.bounds.left + (screen().width >> 1),
+                this.bounds.top + (screen().height >> 1) + 2,
                 this.bounds.width + 2,
                 this.bounds.height,
                 15
@@ -289,18 +289,18 @@ namespace microcode {
             super.draw()
 
             // screen().fillRect(
-            //     // this.bounds.left + (this.bounds.width / 2) - (this.bounds.width / 10),
-            //     this.bounds.left + (this.bounds.width / 2) + (screen().width / 2) - 10,
-            //     this.bounds.top + this.bounds.height + (this.bounds.height * (this.getContext()[0] / this.maximum)),// + (screen().height / 2),
+            //     // this.bounds.left + (this.bounds.width >> 1) - (this.bounds.width / 10),
+            //     this.bounds.left + (this.bounds.width >> 1) + (screen().width >> 1) - 10,
+            //     this.bounds.top + this.bounds.height + (this.bounds.height * (this.getContext()[0] / this.maximum)),// + (screen().height >> 1),
             //     20,
             //     10,
             //     15
             // )
 
             screen().fillRect(
-                // this.bounds.left + (this.bounds.width / 2) - (this.bounds.width / 10),
-                this.bounds.left + (this.bounds.width / 2) + (screen().width / 2) - 10,
-                // this.bounds.top - 10 + (this.bounds.height / (this.getContext()[0] / this.maximum)) + (screen().height / 2),
+                // this.bounds.left + (this.bounds.width >> 1) - (this.bounds.width / 10),
+                this.bounds.left + (this.bounds.width >> 1) + (screen().width >> 1) - 10,
+                // this.bounds.top - 10 + (this.bounds.height / (this.getContext()[0] / this.maximum)) + (screen().height >> 1),
                 this.bounds.top + (this.bounds.height * (this.maximum / this.getContext()[0])) + 15,
                 20,
                 10,
@@ -308,8 +308,8 @@ namespace microcode {
             )
 
             screen().fillRect(
-                this.bounds.left + (this.bounds.width / 2) - 3 + (screen().width / 2),
-                this.bounds.top + (screen().height / 2),
+                this.bounds.left + (this.bounds.width >> 1) - 3 + (screen().width >> 1),
+                this.bounds.top + (screen().height >> 1),
                 6,
                 this.bounds.height - 4,
                 15
@@ -362,7 +362,7 @@ namespace microcode {
 
             for (let i = 0; i < this.graphableFns.length; i++) {
                 const hasSpace = this.graphableFns[i].getBufferLength() < this.graphableFns[i].getMaxBufferSize()
-                this.graphableFns[i].readIntoBufferOnce((screen().height / 2) + top, this.bounds.height) // 8
+                this.graphableFns[i].readIntoBufferOnce((screen().height >> 1) + top, this.bounds.height) // 8
             }
 
             //----------------------------
@@ -374,7 +374,7 @@ namespace microcode {
 
                 // Draw lines:
                 sensor.draw(
-                    (screen().width / 2) + left + 3,
+                    (screen().width >> 1) + left + 3,
                     color,
                 )
 
@@ -388,7 +388,7 @@ namespace microcode {
                     // if (y > sensor.getMinimum() + 5) {
                         screen().print(
                             sensor.getNthReading(sensor.getBufferLength() - 1).toString().slice(0, 5),
-                            this.bounds.left + this.bounds.width + (screen().width / 2) - 4,
+                            this.bounds.left + this.bounds.width + (screen().width >> 1) - 4,
                             y + top + this.bounds.height - 7,
                             color,
                             bitmaps.font5,
@@ -408,19 +408,19 @@ namespace microcode {
             for (let i = 0; i < 2; i++) {
                 // X-Axis:
                 screen().drawLine(
-                    left + (screen().width / 2),
-                    (screen().height / 2) + top + this.bounds.height + i,
-                    left + this.bounds.width + (screen().width / 2),
-                    (screen().height / 2) + top + this.bounds.height + i,
+                    left + (screen().width >> 1),
+                    (screen().height >> 1) + top + this.bounds.height + i,
+                    left + this.bounds.width + (screen().width >> 1),
+                    (screen().height >> 1) + top + this.bounds.height + i,
                     5
                 );
 
                 // Y-Axis:
                 screen().drawLine(
-                    left + (screen().width / 2) + i,
-                    (screen().height / 2) + top,
-                    left + (screen().width / 2) + i, 
-                    (screen().height / 2) + this.bounds.height + top,
+                    left + (screen().width >> 1) + i,
+                    (screen().height >> 1) + top,
+                    left + (screen().width >> 1) + i, 
+                    (screen().height >> 1) + this.bounds.height + top,
                     5
                 );
             }
@@ -453,8 +453,8 @@ namespace microcode {
             // Start
             screen().print(
                 this.graphableFns[0].numberOfReadings.toString(),
-                (screen().width / 2) + this.bounds.left,
-                this.bounds.top + this.bounds.height + (screen().height / 2) + 3,
+                (screen().width >> 1) + this.bounds.left,
+                this.bounds.top + this.bounds.height + (screen().height >> 1) + 3,
                 1
             )
 
@@ -462,8 +462,8 @@ namespace microcode {
             const end: string = (this.graphableFns[0].numberOfReadings + this.graphableFns[0].getHeightNormalisedBufferLength()).toString()
             screen().print(
                 end,
-                (screen().width / 2) + this.bounds.left + this.bounds.width - (end.length * font.charWidth) + 2,
-                this.bounds.top + this.bounds.height + (screen().height / 2) + 3,
+                (screen().width >> 1) + this.bounds.left + this.bounds.width - (end.length * font.charWidth) + 2,
+                this.bounds.top + this.bounds.height + (screen().height >> 1) + 3,
                 1
             )
             basic.pause(100);
@@ -709,7 +709,7 @@ namespace microcode {
                             style: ButtonStyles.Transparent,
                             icon: bitmaps.create(10, 10),
                             ariaId: "",
-                            x: (xDiff * (j + 1)) - (screen().width / 2),
+                            x: (xDiff * (j + 1)) - (screen().width >> 1),
                             y: (13 * (i + 1)) - 18,
                             onClick: defaultBehaviour,
                             state: [(i * 10) + j]
@@ -748,7 +748,7 @@ namespace microcode {
                         style: ButtonStyles.Transparent,
                         icon: icons[i],
                         ariaId: "",
-                        x: x[i] - (screen().width / 2),
+                        x: x[i] - (screen().width >> 1),
                         y: (13 * 5) - 18,
                         onClick: botRowBehaviours[i]
                     })
@@ -807,8 +807,8 @@ namespace microcode {
             for (let i = 0; i < this.btns.length; i++) {
                 this.btns[i].draw()
 
-                const x = (screen().width / 2) + this.btns[i].xfrm.localPos.x - (this.btns[i].icon.width / 2) + 2
-                const y = (screen().height / 2) + this.btns[i].xfrm.localPos.y + font.charHeight - 12
+                const x = (screen().width >> 1) + this.btns[i].xfrm.localPos.x - (this.btns[i].icon.width >> 1) + 2
+                const y = (screen().height >> 1) + this.btns[i].xfrm.localPos.y + font.charHeight - 12
                 screen().print(this.btnText[i], x, y, 1) // White text
             }
 
@@ -852,9 +852,9 @@ namespace microcode {
             })
         }
 
-        public static makeComponentActive(componentID: number) {
+        public static makeComponentActive(componentID: number, hideOthers: boolean) {
             Window.currentComponentID = componentID;
-            Window.focus(true);
+            Window.focus(hideOthers);
         }
 
         /* override */ startup() {
@@ -887,11 +887,13 @@ namespace microcode {
 
             if (Window.components != null) {
                 Window.components.forEach(component => {
-                    if (!component.hidden)
+                    if (!component.hidden && !component.active)
                         component.draw()
                 })
             }
 
+            // Always draw active ontop
+            Window.components[Window.currentComponentID].draw()
             // this.cursor.draw()
         }
     }
@@ -1069,8 +1071,8 @@ namespace microcode {
             this.cursorBounds = new Bounds({
                 width: this.btns[x][y].width + 4,
                 height: this.btns[x][y].height + 4,
-                left: this.btns[x][y].xfrm.localPos.x - (this.btns[x][y].width / 2) - 2,
-                top: this.btns[x][y].xfrm.localPos.y - (this.btns[x][y].height / 2) - 2
+                left: this.btns[x][y].xfrm.localPos.x - (this.btns[x][y].width >> 1) - 2,
+                top: this.btns[x][y].xfrm.localPos.y - (this.btns[x][y].height >> 1) - 2
             })
             this.drawCursor()
         }
@@ -1080,8 +1082,7 @@ namespace microcode {
         }
 
         drawCursorText() {
-            const ariaId = this.btns[this.cursorRow][this.cursorCol].ariaId
-            const text = accessibility.ariaToTooltip(ariaId)
+            const text = this.btns[this.cursorRow][this.cursorCol].ariaId
 
             if (text) {
                 const pos = this.cursorBounds;

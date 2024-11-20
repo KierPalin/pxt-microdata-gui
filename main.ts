@@ -10,20 +10,18 @@ namespace microcode {
     const comp1 = new ButtonCollection({
         alignment: GUIComponentAlignment.TOP,
         btns: [
-            [new Button({ icon: "accelerometer", ariaId: "", x: 0, y: 0, onClick: () => basic.showNumber(0) }),
-            new Button({ icon: "accelerometer", ariaId: "", x: 20, y: 0, onClick: () => basic.showNumber(6) })],
-            [new Button({ icon: "accelerometer", ariaId: "", x: 20, y: 20, onClick: () => basic.showNumber(1) })]
+            [new Button({ icon: "pin_0", ariaId: "", x: 0, y: 0, onClick: () => basic.showNumber(0) }),
+            new Button({ icon: "pin_1", ariaId: "1", x: 20, y: 0, onClick: () => basic.showNumber(1) })],
+            [new Button({ icon: "green_tick", ariaId: "Done", x: 20, y: 20, onClick: () => Window.makeComponentActive(1, false)})]
         ],
         isActive: true,
     })
     
-    const comp2BtnBehaviour = () => {Window.makeComponentActive(0)}
-
     const comp2 = new ButtonCollection({
         alignment: GUIComponentAlignment.LEFT,
         btns: [
-            [new Button({ icon: "thermometer", ariaId: "", x: 10, y: 0, onClick: comp2BtnBehaviour})],
-            [new Button({ icon: "thermometer", ariaId: "", x: 10, y: 20, onClick: comp2BtnBehaviour})]
+            [new Button({ icon: "thermometer", ariaId: "", x: 10, y: 0, onClick: () => basic.showNumber(0)})],
+            [new Button({ icon: "green_tick", ariaId: "", x: 10, y: 20, onClick: () => Window.makeComponentActive(0, true)})]
         ],
         isActive: false,
         isHidden: true,
@@ -41,8 +39,15 @@ namespace microcode {
         xScaling: 0.7,
         xOffset: -10
     })
+    
+    const comp4 = new GUIGraph({
+        alignment: GUIComponentAlignment.BOT_LEFT,
+        graphableFns: [new GraphableFunction((x) => (5 * Math.sin(x)) + 20)],
+        isActive: false,
+        isHidden: true,
+    })
 
-    const window = new Window({ app, components: [comp1, comp2, comp3] })
+    const window = new Window({ app, components: [comp1, comp2, comp3, comp4] })
     // const window = new Window({ app, components: [simpleBtnComponent] })
 
     app.pushScene(window)
