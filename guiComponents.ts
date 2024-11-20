@@ -817,7 +817,6 @@ namespace microcode {
     }
 
 
-
     /**
      * Holds other components,
      * One component is active at a time
@@ -843,14 +842,11 @@ namespace microcode {
             this.currentComponentID = 0
 
             if (this.components != null && opts.hideByDefault)
-                this.focus(this.currentComponentID)
+                this.focus(this.currentComponentID, true)
 
-            
             input.onButtonPressed(1, function() {
-                // this.currentComponentID = (this.currentComponentID + 1) % this.components.length
-                // this.focus(this.currentComponentID)
-                this.currentComponentID = 1
-                this.focus(this.currentComponentID)
+                this.currentComponentID = (this.currentComponentID + 1) % 2
+                this.focus(this.currentComponentID, true)
             })
         }
 
@@ -858,10 +854,13 @@ namespace microcode {
             super.startup()
         }
 
-        focus(componentID: number, hideOthers: boolean = true) {
+        focus(componentID: number, hideOthers: boolean) {
             if (hideOthers)
-                this.components.forEach(component => component.makeActive())
+                this.components.forEach(component => {component.hide()})
+            this.components.forEach(component => {component.unmakeActive()})
+
             this.components[componentID].unHide()
+            this.components[componentID].makeActive()
 
             this.currentComponentID = componentID
         }
@@ -1039,7 +1038,7 @@ namespace microcode {
 
         unmakeActive() {
             this.isActive = false
-            this.bindShieldButtons()
+            this.unbindShieldButtons()
         }
 
         click() {
@@ -1090,9 +1089,8 @@ namespace microcode {
         }
 
         draw() {
-            super.draw()
-
-            if (!this.hidden) {
+            if (!this.isHidden) {
+                super.draw()
                 if (this.isActive) {
                     this.drawCursor()
                 }
