@@ -108,6 +108,8 @@ namespace microcode {
          */
         getContext(): any[] {return this.context}
 
+        addContext(newContext: any[]) {this.context.push(newContext)}
+
         clearContext(): void { this.context = [] }
         setBounds(bounds: Bounds): void { this.bounds = bounds }
 
@@ -257,7 +259,7 @@ namespace microcode {
             )
 
 
-            let yOffset = 8;
+            let yOffset = 12;
             this.textChunks.forEach(textChunk => {
                 const textOffset = (font.charWidth * textChunk.length) >> 1
                 screen().print(
@@ -266,7 +268,7 @@ namespace microcode {
                     (screen().height >> 1) + this.bounds.top + 2 + yOffset
                 )
 
-                yOffset += 8
+                yOffset += 10
             })
         }
     }
@@ -891,6 +893,10 @@ namespace microcode {
             Window.focus(hideOthers);
         }
 
+        public static updateComponentsContext(componentID: number, context: any[]) {
+            this.components[componentID].addContext(context)
+        }
+
         /* override */ startup() {
             super.startup()
         }
@@ -928,7 +934,6 @@ namespace microcode {
 
             // Always draw active ontop
             Window.components[Window.currentComponentID].draw()
-            // this.cursor.draw()
         }
     }
 
