@@ -64,6 +64,8 @@ namespace microcode {
             this.isActive = opts.isActive
             this.isHidden = (opts.isHidden != null) ? opts.isHidden : false
 
+            this.context = []
+
             this.xScaling = (opts.xScaling) ? opts.xScaling : this.xScaling
             this.yScaling = (opts.yScaling) ? opts.yScaling : this.yScaling
 
@@ -183,9 +185,9 @@ namespace microcode {
 
         draw(): void {
             screen().fillRect(
-                this.bounds.left + (screen().width >> 1),
+                this.bounds.left + (screen().width >> 1) + 2,
                 this.bounds.top + (screen().height >> 1) + 2,
-                this.bounds.width + 2,
+                this.bounds.width,
                 this.bounds.height,
                 15
             )
@@ -360,7 +362,7 @@ namespace microcode {
             alignment: GUIComponentAlignment,
             graphableFns: GraphableFunction[],
             isActive: boolean,
-            isHidden: boolean,
+            isHidden?: boolean,
             xOffset?: number,
             yOffset?: number,
             xScaling?: number,
@@ -382,6 +384,8 @@ namespace microcode {
             })
 
             this.graphableFns = opts.graphableFns
+            const bufferScalar = (opts.xScaling != null) ? opts.xScaling : 1
+            this.graphableFns.forEach(gf => gf.setBufferSize(60 * bufferScalar))
         }
 
         draw() {
@@ -416,16 +420,17 @@ namespace microcode {
 
                 // Draw the latest reading on the right-hand side as a Ticker if at no-zoom:
                 if (sensor.getHeightNormalisedBufferLength() > 0) {
-                    const reading = sensor.getReading()
+                    const reading = sensor.getNthReading(sensor.getBufferLength() - 1);
+                    const readingAsString = reading.toString().slice(0, 5);
                     const range = Math.abs(sensor.getMinimum()) + sensor.getMaximum()
                     const y = Math.round(this.bounds.height - (this.bounds.height * ((reading - sensor.getMinimum()) / range)))
 
                     // Make sure the ticker won't be cut-off by other UI elements
                     // if (y > sensor.getMinimum() + 5) {
                         screen().print(
-                            sensor.getNthReading(sensor.getBufferLength() - 1).toString().slice(0, 5),
-                            this.bounds.left + this.bounds.width + (screen().width >> 1) - 4,
-                            y + top + this.bounds.height - 7,
+                            readingAsString,
+                            this.bounds.left + this.bounds.width + (screen().width >> 1) - (readingAsString.length * font.charWidth),
+                            y + top + this.bounds.height - 4,
                             color,
                             bitmaps.font5,
                         )
